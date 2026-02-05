@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thunderbird Link Handler</title>
+</head>
+<body>
+<div id="app">
+  <h1>Thunderbird Link Handler</h1>
+
+  <div id="fragment-table" style="margin: 2rem 0;">
+    <p style="color: #999;">Loading...</p>
+  </div>
+
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin-top: 2rem;">
+    <label for="thunderbird-command">Thunderbird command:</label>
+    <textarea readonly id="thunderbird-command" style="width: 90%; min-height: 80px; font-family: monospace;"></textarea>
+    <button id="copy-button" style="padding: 0.5rem 1rem;">Copy to Clipboard</button>
+  </div>
+</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
