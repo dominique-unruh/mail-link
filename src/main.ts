@@ -58,16 +58,22 @@ function displayFragmentData(): void {
 
     const tableContainer = document.getElementById('fragment-table') as HTMLDivElement;
     const textarea = document.getElementById('thunderbird-command') as HTMLTextAreaElement;
+    const midLinkSpan = document.getElementById('mid-link') as HTMLSpanElement;
 
     if (!parsed) {
         tableContainer.innerHTML = '<p style="color: #999;">No fragment data in URL</p>';
         textarea.value = '';
+        midLinkSpan.innerHTML = '<em style="color: #999;">N/A</em>';
         return;
     }
 
     // Set thunderbird command
     // Note: parsed.mid should not be percent-escaped here because thunderbird (incorrectly?) does not decode the mid-URI.
     textarea.value = `thunderbird ${shellEscape("mid:" + parsed.mid)}`;
+
+    // Update mid-link
+    const midUrl = `mid:${parsed.mid}`;
+    midLinkSpan.innerHTML = `<a href="${escapeHtml(midUrl)}">${escapeHtml(midUrl)}</a>`;
 
     // Build table
     const paramCount = Object.keys(parsed.params).length;
@@ -147,6 +153,12 @@ function setupCopyButton(): void {
 function initApp(): void {
     displayFragmentData();
     setupCopyButton();
+
+    // Auto-open mid-link on first load
+    const parsed = parseFragment();
+    if (parsed) {
+        window.location.href = `mid:${parsed.mid}`;
+    }
 
     // Re-parse if hash changes
     window.addEventListener('hashchange', displayFragmentData);
