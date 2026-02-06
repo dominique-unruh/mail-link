@@ -59,3 +59,10 @@ The author is not responsible for any harm or damages resulting from the use of 
 Version 2.0](https://www.mozilla.org/en-US/MPL/2.0/)
 
 The icon [icon.svg](icon.svg) was included from [SVG Repo](https://www.svgrepo.com/svg/19262/link) where it was provided under the CC0 license.
+
+# Related tools
+
+* If you just want to copy the message-id (without extra data and a landing page),
+  you can use the [Copy Message ID](https://addons.thunderbird.net/en-US/thunderbird/addon/copy-message-id) add-on instead.
+* If you want to store/share the email as a whole (not just a link), simply save it.
+  (No add-on needed, press Ctrl-S in Thunderbird.)
