@@ -1,1 +1,0 @@
-icon.svg: https://www.svgrepo.com/svg/19262/link, CC0 licence
