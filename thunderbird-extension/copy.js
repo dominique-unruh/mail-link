@@ -8,7 +8,7 @@ browser.messageDisplayAction.onClicked.addListener(async (tab, info) => {
     let message = await browser.messageDisplay.getDisplayedMessage(tab.id);
 
     // Get options from storage
-    let options = await browser.storage.local.get();
+    let options = await browser.storage.sync.get();
     console.log(options)
     if (!options.baseUrl || options.baseUrl === "") {
       browser.runtime.openOptionsPage();

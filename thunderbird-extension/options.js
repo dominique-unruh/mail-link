@@ -5,7 +5,7 @@ let defaultBaseUrl = "https://qis.rwth-aachen.de/people/unruh/tools/mail-link/";
 // Load saved options
 async function loadOptions() {
   try {
-    let options = await browser.storage.local.get({
+    let options = await browser.storage.sync.get({
       baseUrl: defaultBaseUrl,
       whoHasIt: "",
       includeWhoHasIt: true,
@@ -82,7 +82,7 @@ async function saveOptions(e) {
       includeTo: document.getElementById("includeTo").checked
     };
     
-    await browser.storage.local.set(options);
+    await browser.storage.sync.set(options);
     
     // Show success message
     let status = document.getElementById("status");

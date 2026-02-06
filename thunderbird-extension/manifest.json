@@ -17,13 +17,18 @@
     "notifications"
   ],
   "background": {
-    "scripts": ["copy.js"]
+    "scripts": ["copy.js"],
+    "type": "module"
   },
   "options_ui": {
     "page": "options.html",
+    "browser_style": true,
     "open_in_tab": false
   },
   "icons": {
+    "16": "icon.svg",
+    "32": "icon.svg",
+    "64": "icon.svg",
     "48": "icon.svg",
     "96": "icon.svg"
   },
