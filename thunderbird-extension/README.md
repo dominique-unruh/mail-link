@@ -16,15 +16,25 @@ E.g., it is not possible to make a hyperlink in Google Docs where the target is 
 The link directs to a landing page that gives the recipient of the link
 information how to find it. (If supported, it will also directly be opened in your mail client.)
 
+# Installation
+
+Install it directly from the Thunderbird Add-on Store: [Copy Message Link](https://addons.thunderbird.net/en-US/thunderbird/addon/copy-message-link/)
+
+Alternatively: run `make xpi` and install the resulting file `copy-message-link-VERSION.xpi` into your Thunderbird.
+(Menu *Addons and themes*, tab *Extensions*, cogwheel icon, *Install Add-on From File...*.)
+
 # Workflow
 
 1. Open the email in Thunderbird.
-2. Click on the *🔗 Copy Link* button. ![Screenshot](screenshot-copy-link.png)
+2. Click on the *🔗 Copy Link* button.
+
+   ![Screenshot](screenshot-copy-link.png)
 3. (The first time, you will be redirected to the add-on options. Fill and save them.)
 4. Paste the link in some notes where you want to refer to the email.
    Example: *Don't forget to answer the [interesting email](https://qis.rwth-aachen.de/people/unruh/tools/mail-link/#a5ce5048-46cb-454b-afcd-8012add2c8c1%40x.unruh.de&subject=An%20interesting%20email...&date=2026-02-06T17%3A45%3A30.000Z&from=Sender%20Name%20%3Cgit.maillink.32gdvl%40x.unruh.de%3E&to=Recipient%20Name%20%3Crecipient%40example.com%3E&whohasit=Dominique%20Unruh)!*
 5. Later, open the link and find the email again. (Or someone else can do it, too.)
    You will see this landing page (and possibly the email opens directly in your mail client.)
+
    ![Screenshot](screenshot-landing-page.png)
 
 # Privacy
@@ -45,3 +55,7 @@ The author is not responsible for any harm or damages resulting from the use of 
 
 # License
 
+[Mozilla Public License
+Version 2.0](https://www.mozilla.org/en-US/MPL/2.0/)
+
+The icon [icon.svg](icon.svg) was included from [SVG Repo](https://www.svgrepo.com/svg/19262/link) where it was provided under the CC0 license.
