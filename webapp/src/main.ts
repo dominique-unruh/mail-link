@@ -1,16 +1,25 @@
 import './style.css';
+import {escapeHtml} from './utils.ts';
+import '@shoelace-style/shoelace/dist/components/input/input.js';
+import '@shoelace-style/shoelace/dist/components/copy-button/copy-button.js';
+import '@shoelace-style/shoelace/dist/components/details/details.js';
+import {providers} from "./providers/providers.ts";
 
-interface ParsedFragment {
+
+export interface ParsedFragment {
     mid: string;
     params: Record<string, string>;
 }
 
-function parseFragment(): ParsedFragment | null {
-    const hash = window.location.hash;
+const linkInputField = document.getElementById("link") as HTMLInputElement;
+const howToOpenGroup = document.getElementById("how-to-open-group") as HTMLDivElement;
+const messageIDSpan = document.getElementById("message-id-span") as HTMLSpanElement;
+const tableContainer = document.getElementById('fragment-table') as HTMLDivElement;
 
-    if (!hash || hash.length <= 1) {
+function parseFragment(url: string): ParsedFragment | null {
+    const hash = new URL(url).hash;
+    if (!hash || hash.length <= 1)
         return null;
-    }
 
     // Remove the leading '#'
     const fragment = hash.substring(1);
@@ -41,132 +50,93 @@ function parseFragment(): ParsedFragment | null {
     return { mid, params };
 }
 
-function shellEscape(str: string): string {
-    if (str == '') return "''";
-
-    // If string contains no special characters, return as-is
-    if (/^[a-zA-Z0-9._\/:@+-]+$/.test(str)) {
-        return str;
-    }
-
-    // Otherwise, wrap in single quotes and escape any single quotes
-    return "'" + str.replace(/'/g, "'\\''") + "'";
-}
-
-function displayFragmentData(): void {
-    const parsed = parseFragment();
-
-    const tableContainer = document.getElementById('fragment-table') as HTMLDivElement;
-    const textarea = document.getElementById('thunderbird-command') as HTMLTextAreaElement;
-    const midLinkSpan = document.getElementById('mid-link') as HTMLSpanElement;
-
-    if (!parsed) {
-        tableContainer.innerHTML = '<p style="color: #999;">No fragment data in URL</p>';
-        textarea.value = '';
-        midLinkSpan.innerHTML = '<em style="color: #999;">N/A</em>';
-        return;
-    }
-
-    // Set thunderbird command
-    // Note: parsed.mid should not be percent-escaped here because thunderbird (incorrectly?) does not decode the mid-URI.
-    textarea.value = `thunderbird ${shellEscape("mid:" + parsed.mid)}`;
-
-    // Update mid-link
-    const midUrl = `mid:${parsed.mid}`;
-    midLinkSpan.innerHTML = `<a href="${escapeHtml(midUrl)}">${escapeHtml(midUrl)}</a>`;
-
-    // Build table
+function displayTable(parsed: ParsedFragment) {
     const paramCount = Object.keys(parsed.params).length;
 
     if (paramCount === 0) {
-        tableContainer.innerHTML = `
-      <p><strong>Message ID:</strong> ${escapeHtml(parsed.mid)}</p>
-      <p style="color: #999;">No additional parameters</p>
-    `;
+        tableContainer.innerHTML = `<p style="color: #999;">No additional parameters</p>`;
     } else {
         let tableHtml = `
-      <p><strong>Message ID:</strong> ${escapeHtml(parsed.mid)}</p>
-      <table style="margin-top: 1rem; border-collapse: collapse; width: 100%;">
-        <thead>
-          <tr style="background: #f0f0f0;">
-            <th style="padding: 0.5rem; text-align: left; border: 1px solid #ddd;">Key</th>
-            <th style="padding: 0.5rem; text-align: left; border: 1px solid #ddd;">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-    `;
+          <table style="margin-top: 1rem; border-collapse: collapse; width: 100%;">
+            <thead>
+              <tr style="background: #f0f0f0;">
+                <th style="padding: 0.5rem; text-align: left; border: 1px solid #ddd;">Key</th>
+                <th style="padding: 0.5rem; text-align: left; border: 1px solid #ddd;">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
 
         for (const [key, value] of Object.entries(parsed.params)) {
             tableHtml += `
-        <tr>
-          <td style="padding: 0.5rem; border: 1px solid #ddd;">${escapeHtml(key)}</td>
-          <td style="padding: 0.5rem; border: 1px solid #ddd;">${escapeHtml(value)}</td>
-        </tr>
-      `;
+            <tr>
+              <td style="padding: 0.5rem; border: 1px solid #ddd;">${escapeHtml(key)}</td>
+              <td style="padding: 0.5rem; border: 1px solid #ddd;">${escapeHtml(value)}</td>
+            </tr>
+          `;
         }
 
         tableHtml += `
-        </tbody>
-      </table>
-    `;
+            </tbody>
+          </table>
+        `;
 
         tableContainer.innerHTML = tableHtml;
     }
 }
 
-function escapeHtml(text: string): string {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
+async function displayFragmentData(): Promise<void> {
+    const parsed = parseFragment(linkInputField.value);
 
-function setupCopyButton(): void {
-    const copyButton = document.getElementById('copy-button') as HTMLButtonElement;
-    const textarea = document.getElementById('thunderbird-command') as HTMLTextAreaElement;
-
-    copyButton.addEventListener('click', async () => {
-        try {
-            await navigator.clipboard.writeText(textarea.value);
-
-            // Visual feedback
-            const originalText = copyButton.textContent;
-            copyButton.textContent = '✓ Copied!';
-            copyButton.style.background = '#4CAF50';
-
-            setTimeout(() => {
-                copyButton.textContent = originalText;
-                copyButton.style.background = '';
-            }, 2000);
-        } catch (err) {
-            // Fallback for older browsers
-            textarea.select();
-            document.execCommand('copy');
-            copyButton.textContent = '✓ Copied!';
-
-            setTimeout(() => {
-                copyButton.textContent = 'Copy to Clipboard';
-            }, 2000);
-        }
-    });
-}
-
-function initApp(): void {
-    displayFragmentData();
-    setupCopyButton();
-
-    // Auto-open mid-link on first load
-    const parsed = parseFragment();
-    if (parsed) {
-        window.location.href = `mid:${parsed.mid}`;
+    if (!parsed) {
+        tableContainer.innerHTML = '<p style="color: #999;">No fragment data in URL</p>';
+        messageIDSpan.textContent = "[No message ID]";
+        return;
     }
 
-    // Re-parse if hash changes
-    window.addEventListener('hashchange', displayFragmentData);
+    messageIDSpan.textContent = parsed.mid;
+    displayTable(parsed);
+
+    for (const provider of providers)
+        await provider.dataChanged(parsed);
 }
+
+
+/** Updates `linkInputField` from the location bar */
+async function updatelinkInputFieldFromLocation() {
+    linkInputField.value = window.location.href;
+    await displayFragmentData();
+}
+
+async function initApp(): Promise<void> {
+    for (const provider of providers)
+        await provider.addToDocument();
+
+    linkInputField.addEventListener("sl-change", displayFragmentData);
+    // Makes sure only one provider visible at once
+    howToOpenGroup.addEventListener('sl-show', event => {
+        const target = event.target as HTMLElement;
+        if (target.localName === 'sl-details') {
+            [...howToOpenGroup.querySelectorAll('sl-details')].map(details => (details.open = event.target === details));
+        }
+    });
+
+    // TODO: Make it configurable what happens automatically
+    // Auto-open mid-link on first load
+    const parsed = parseFragment(window.location.href);
+    if (parsed)
+        window.location.href = `mid:${parsed.mid}`;
+
+    // Update link if location changes
+    window.addEventListener('hashchange', updatelinkInputFieldFromLocation);
+
+    await updatelinkInputFieldFromLocation();
+}
+
 
 // Run when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
 } else {
-    initApp();
+    await initApp();
 }

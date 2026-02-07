@@ -75,3 +75,15 @@ button:hover {
 button:active {
   transform: translateY(1px);
 }
+
+sl-details::part(header) {
+  padding: 0.2rem;
+  background-color: #667eea;
+  margin-bottom: 2px;
+  color: white;
+  border-radius: 8px;
+}
+
+.error {
+  color: red;
+}

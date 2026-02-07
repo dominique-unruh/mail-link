@@ -3,22 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Thunderbird Link Handler</title>
+  <title>Resolve Email Link</title>
 </head>
 <body>
 <div id="app">
-  <h1>Resolve Email Links</h1>
+  <h1>Resolve Email Link</h1>
+
+  <div>
+    <label for="link">Processing the following link:</label>
+    <sl-input id="link"></sl-input>
+    <sl-copy-button from="link.value"></sl-copy-button>
+  </div>
+
+  <div>
+    <strong>Message ID:</strong> <span id="message-id-span">[No message ID]</span>
+    <sl-copy-button from="message-id-span"></sl-copy-button>
+  </div>
 
   <div id="fragment-table" style="margin: 2rem 0;">
     <p style="color: #999;">Loading...</p>
   </div>
 
-  <b>Open locally: <span id="mid-link"></span></b>
-
-  <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem; margin-top: 2rem;">
-    <label for="thunderbird-command">Thunderbird command:</label>
-    <textarea readonly id="thunderbird-command" style="width: 90%; min-height: 80px; font-family: monospace;"></textarea>
-    <button id="copy-button" style="padding: 0.5rem 1rem;">Copy to Clipboard</button>
+  <label>How to find the email?</label>
+  <div id="how-to-open-group">
   </div>
 </div>
 <script type="module" src="/src/main.ts"></script>
