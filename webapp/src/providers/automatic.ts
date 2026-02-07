@@ -9,7 +9,7 @@ export class AutomaticProvider extends Provider {
         super('Automatically', automaticHtml);
     }
 
-    protected init(_content: HTMLDivElement): void | Promise<void> {
+    protected init(): void | Promise<void> {
         this.linkElement = document.getElementById("automatic-mid-link") as HTMLAnchorElement;
     }
 
