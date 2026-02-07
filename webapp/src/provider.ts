@@ -5,6 +5,7 @@ export abstract class Provider {
     protected readonly title: string;
     protected readonly html: string | HTMLElement | DocumentFragment;
     protected readonly id: string;
+    private _contentDiv!: HTMLDivElement;
 
     constructor(title: string, html: string | HTMLElement | DocumentFragment) {
         this.title = title;
@@ -48,7 +49,8 @@ export abstract class Provider {
             // Append content to details
             details.appendChild(contentDiv);
             // Call abstract init method with the content div
-            await this.init(contentDiv);
+            this._contentDiv = contentDiv;
+            await this.init();
         } else {
             const error = document.createElement("strong")
             error.className = 'error';
@@ -57,8 +59,13 @@ export abstract class Provider {
         }
     }
 
+    /** @final */
+    protected contentDiv(): HTMLDivElement {
+        return this._contentDiv;
+    }
+
     /** Called after registering the provider. Can initialize the content more or do whatever. */
-    protected abstract init(content: HTMLDivElement): void | Promise<void>;
+    protected abstract init(): void | Promise<void>;
 
     abstract dataChanged(parsed: ParsedFragment | null): void | Promise<void>;
 }

@@ -46,3 +46,27 @@ export function validateNoDuplicateIds(container: HTMLElement): boolean {
     }
     return true;
 }
+
+export function htmlTag<T extends HTMLElement>(name: string, ...children: ReadonlyArray<HTMLElement | Text | string | string[]>): T {
+    const tag = document.createElement(name) as T;
+    for (const child of children) {
+        if (Array.isArray(child)) {
+            const [key, value] = child;
+            tag.setAttribute(key, value)
+        } else if (typeof child === "string")
+           tag.appendChild(document.createTextNode(child));
+        else
+            tag.appendChild(child);
+    }
+    return tag;
+}
+
+export function htmlP(...children: ReadonlyArray<HTMLElement | Text | string | string[]>): HTMLParagraphElement {
+    return htmlTag<HTMLParagraphElement>("p", ...children);
+}
+export function htmlLi(...children: ReadonlyArray<HTMLElement | Text | string | string[]>): HTMLLIElement {
+    return htmlTag<HTMLLIElement>("li", ...children);
+}
+export function htmlEm(...children: ReadonlyArray<HTMLElement | Text | string | string[]>): HTMLElement {
+    return htmlTag("em", ...children);
+}
