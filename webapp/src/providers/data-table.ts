@@ -1,10 +1,10 @@
 import {Provider} from "../provider.ts";
-import type {ParsedFragment} from "../main.ts";
 import {escapeHtml} from "../utils.ts";
+import type {ParsedFragment} from "../types.ts";
 
 export class DataTableProvider extends Provider {
     constructor() {
-        super({'title': 'TODO', 'insertHere': 'data-table'});
+        super({'id': 'data-table', 'title': 'Data Table', 'insertHere': 'data-table'});
     }
 
     protected init(): void | Promise<void> {}

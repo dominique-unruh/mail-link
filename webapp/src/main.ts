@@ -3,12 +3,8 @@ import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/copy-button/copy-button.js';
 import '@shoelace-style/shoelace/dist/components/details/details.js';
 import {providers} from "./providers/providers.ts";
-
-
-export interface ParsedFragment {
-    mid: string;
-    params: Record<string, string>;
-}
+import type {ParsedFragment} from "./types.ts";
+import {options, saveOptions} from "./options.ts";
 
 const linkInputField = document.getElementById("link") as HTMLInputElement;
 const howToOpenGroup = document.getElementById("how-to-open-group") as HTMLDivElement;
@@ -72,22 +68,30 @@ async function initApp(): Promise<void> {
     for (const provider of providers)
         await provider.addToDocument();
 
-    linkInputField.addEventListener("sl-change", displayFragmentData);
-    // Makes sure only one provider visible at once
-    howToOpenGroup.addEventListener('sl-show', event => {
-        const target = event.target as HTMLElement;
-        if (target.localName === 'sl-details') {
-            [...howToOpenGroup.querySelectorAll('sl-details')].map(details => (details.open = event.target === details));
-        }
-    });
+    initProviderSections();
 
     // Update link if location changes
     window.addEventListener('hashchange', updatelinkInputFieldFromLocation);
 
     await updatelinkInputFieldFromLocation();
 
-    // TODO
-    await initialAction();
+    initialAction();
+}
+
+function initProviderSections() {
+    linkInputField.addEventListener("sl-change", displayFragmentData);
+    // Makes sure only one provider visible at once
+    howToOpenGroup.addEventListener('sl-show', event => {
+        const target = event.target as HTMLElement;
+        options.openedProvider = target.id.substring("provider-section-".length);
+        if (target.localName === 'sl-details') {
+            [...howToOpenGroup.querySelectorAll('sl-details')].map(details => (details.open = target === details));
+        }
+        saveOptions();
+    });
+
+    if (options.openedProvider)
+        document.getElementById("provider-section-"+options.openedProvider)?.setAttribute("open", "true");
 }
 
 function initialAction(): void {

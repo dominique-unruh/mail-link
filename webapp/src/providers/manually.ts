@@ -1,6 +1,6 @@
 import {Provider} from "../provider.ts";
-import type {ParsedFragment} from "../main.ts";
 import {htmlEm, htmlLi, htmlP, htmlTag} from "../utils.ts";
+import type {ParsedFragment} from "../types.ts";
 
 export class ManualProvider extends Provider {
     static readonly uninitializedText =
@@ -8,7 +8,7 @@ export class ManualProvider extends Provider {
         "More concrete instructions will also be shown here once you do so."
 
     constructor() {
-        super({'title': 'Manually', 'html': ManualProvider.uninitializedText});
+        super({'id': 'manual', 'title': 'Manually', 'html': ManualProvider.uninitializedText});
     }
 
     protected init(): void | Promise<void> {}

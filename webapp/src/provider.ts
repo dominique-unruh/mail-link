@@ -1,7 +1,9 @@
 import {validateNoDuplicateIds} from "./utils.ts";
-import type {ParsedFragment} from "./main.ts";
+import type {ParsedFragment} from "./types.ts";
 
 interface ProviderOptions {
+    /** A unique ID identifying this provider */
+    readonly id: string;
     readonly title: string;
     readonly html?: string | HTMLElement | DocumentFragment;
     readonly insertHere?: string;
@@ -12,20 +14,10 @@ const group: HTMLElement = document.getElementById('how-to-open-group') ||
 
 export abstract class Provider {
     private readonly options: ProviderOptions;
-    protected readonly id: string;
     private _contentDiv!: HTMLDivElement;
 
     protected constructor(options: ProviderOptions) {
         this.options = options;
-        this.id = this.generateId(options.title);
-    }
-
-    private generateId(title: string): string {
-        // Convert title to a valid ID: lowercase, replace spaces/special chars with hyphens
-        return title
-            .toLowerCase()
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
     }
 
     createContainer(): HTMLElement {
@@ -39,6 +31,7 @@ export abstract class Provider {
             // Create sl-details element
             const details = document.createElement('sl-details');
             details.setAttribute('summary', this.options.title);
+            details.setAttribute('id', "provider-section-"+this.options.id);
             // Append details to group
             group.appendChild(details);
             return details;

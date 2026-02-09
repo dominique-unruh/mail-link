@@ -1,13 +1,13 @@
-import type { ParsedFragment } from "../main.ts";
 import {Provider} from "../provider.ts";
 import html from "./thunderbird.html?raw";
 import {shellEscape} from "../utils.ts";
+import type {ParsedFragment} from "../types.ts";
 
 export class ThunderbirdProvider extends Provider {
     private textarea!: HTMLElement;
 
     constructor() {
-        super({'title': "Thunderbird (Desktop)", 'html': html});
+        super({'id': 'thunderbird', 'title': "Thunderbird (Desktop)", 'html': html});
     }
 
     protected init(): void | Promise<void> {

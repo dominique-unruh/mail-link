@@ -1,12 +1,12 @@
 import html from './automatic.html?raw';
 import {Provider} from "../provider.ts";
-import type {ParsedFragment} from "../main.ts";
+import type {ParsedFragment} from "../types.ts";
 
 export class AutomaticProvider extends Provider {
     private linkElement!: HTMLAnchorElement;
 
     constructor() {
-        super({'title': 'Automatically', 'html': html});
+        super({'id': 'automatic', 'title': 'Automatically', 'html': html});
     }
 
     protected init(): void | Promise<void> {
