@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Copy Message Link",
-  "version": "1.0",
+  "version": "snapshot-1.1",
   "description": "Adds a button to copy a link to the current email message",
   "author": "Dominique Unruh",
   "applications": {

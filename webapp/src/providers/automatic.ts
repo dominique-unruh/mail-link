@@ -1,4 +1,4 @@
-import automaticHtml from './automatic.html?raw';
+import html from './automatic.html?raw';
 import {Provider} from "../provider.ts";
 import type {ParsedFragment} from "../main.ts";
 
@@ -6,7 +6,7 @@ export class AutomaticProvider extends Provider {
     private linkElement!: HTMLAnchorElement;
 
     constructor() {
-        super('Automatically', automaticHtml);
+        super({'title': 'Automatically', 'html': html});
     }
 
     protected init(): void | Promise<void> {
@@ -14,7 +14,7 @@ export class AutomaticProvider extends Provider {
     }
 
     dataChanged(data: ParsedFragment | null): void | Promise<void> {
-        if (data == null) {
+        if (!data) {
             this.linkElement.href = "";
             this.linkElement.textContent = "[No message ID]";
             return;

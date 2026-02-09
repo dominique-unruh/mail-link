@@ -7,7 +7,7 @@ export class ThunderbirdProvider extends Provider {
     private textarea!: HTMLElement;
 
     constructor() {
-        super("Thunderbird", html);
+        super({'title': "Thunderbird (Desktop)", 'html': html});
     }
 
     protected init(): void | Promise<void> {

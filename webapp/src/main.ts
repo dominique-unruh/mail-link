@@ -1,5 +1,4 @@
 import './style.css';
-import {escapeHtml} from './utils.ts';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/copy-button/copy-button.js';
 import '@shoelace-style/shoelace/dist/components/details/details.js';
@@ -14,7 +13,6 @@ export interface ParsedFragment {
 const linkInputField = document.getElementById("link") as HTMLInputElement;
 const howToOpenGroup = document.getElementById("how-to-open-group") as HTMLDivElement;
 const messageIDSpan = document.getElementById("message-id-span") as HTMLSpanElement;
-const tableContainer = document.getElementById('fragment-table') as HTMLDivElement;
 
 function parseFragment(url: string): ParsedFragment | null {
     const hash = new URL(url).hash;
@@ -50,57 +48,19 @@ function parseFragment(url: string): ParsedFragment | null {
     return { mid, params };
 }
 
-function displayTable(parsed: ParsedFragment) {
-    const paramCount = Object.keys(parsed.params).length;
-
-    if (paramCount === 0) {
-        tableContainer.innerHTML = `<p style="color: #999;">No additional parameters</p>`;
-    } else {
-        let tableHtml = `
-          <table style="margin-top: 1rem; border-collapse: collapse; width: 100%;">
-            <thead>
-              <tr style="background: #f0f0f0;">
-                <th style="padding: 0.5rem; text-align: left; border: 1px solid #ddd;">Key</th>
-                <th style="padding: 0.5rem; text-align: left; border: 1px solid #ddd;">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-        `;
-
-        for (const [key, value] of Object.entries(parsed.params)) {
-            tableHtml += `
-            <tr>
-              <td style="padding: 0.5rem; border: 1px solid #ddd;">${escapeHtml(key)}</td>
-              <td style="padding: 0.5rem; border: 1px solid #ddd;">${escapeHtml(value)}</td>
-            </tr>
-          `;
-        }
-
-        tableHtml += `
-            </tbody>
-          </table>
-        `;
-
-        tableContainer.innerHTML = tableHtml;
-    }
-}
-
 async function displayFragmentData(): Promise<void> {
     const parsed = parseFragment(linkInputField.value);
 
     if (!parsed) {
-        tableContainer.innerHTML = '<p style="color: #999;">No fragment data in URL</p>';
         messageIDSpan.textContent = "[No message ID]";
         return;
     }
 
     messageIDSpan.textContent = parsed.mid;
-    displayTable(parsed);
 
     for (const provider of providers)
         await provider.dataChanged(parsed);
 }
-
 
 /** Updates `linkInputField` from the location bar */
 async function updatelinkInputFieldFromLocation() {
@@ -121,18 +81,22 @@ async function initApp(): Promise<void> {
         }
     });
 
+    // Update link if location changes
+    window.addEventListener('hashchange', updatelinkInputFieldFromLocation);
+
+    await updatelinkInputFieldFromLocation();
+
+    // TODO
+    await initialAction();
+}
+
+function initialAction(): void {
     // TODO: Make it configurable what happens automatically
     // Auto-open mid-link on first load
     const parsed = parseFragment(window.location.href);
     if (parsed)
         window.location.href = `mid:${parsed.mid}`;
-
-    // Update link if location changes
-    window.addEventListener('hashchange', updatelinkInputFieldFromLocation);
-
-    await updatelinkInputFieldFromLocation();
 }
-
 
 // Run when DOM is ready
 if (document.readyState === 'loading') {

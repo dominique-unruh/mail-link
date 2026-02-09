@@ -8,7 +8,7 @@ export class ManualProvider extends Provider {
         "More concrete instructions will also be shown here once you do so."
 
     constructor() {
-        super('Manually', ManualProvider.uninitializedText);
+        super({'title': 'Manually', 'html': ManualProvider.uninitializedText});
     }
 
     protected init(): void | Promise<void> {}

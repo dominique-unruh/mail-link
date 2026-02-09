@@ -1,16 +1,23 @@
 import {validateNoDuplicateIds} from "./utils.ts";
 import type {ParsedFragment} from "./main.ts";
 
+interface ProviderOptions {
+    readonly title: string;
+    readonly html?: string | HTMLElement | DocumentFragment;
+    readonly insertHere?: string;
+}
+
+const group: HTMLElement = document.getElementById('how-to-open-group') ||
+    (()=>{throw Error('how-to-open-group element not found')})();
+
 export abstract class Provider {
-    protected readonly title: string;
-    protected readonly html: string | HTMLElement | DocumentFragment;
+    private readonly options: ProviderOptions;
     protected readonly id: string;
     private _contentDiv!: HTMLDivElement;
 
-    constructor(title: string, html: string | HTMLElement | DocumentFragment) {
-        this.title = title;
-        this.html = html;
-        this.id = this.generateId(title);
+    protected constructor(options: ProviderOptions) {
+        this.options = options;
+        this.id = this.generateId(options.title);
     }
 
     private generateId(title: string): string {
@@ -21,33 +28,42 @@ export abstract class Provider {
             .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
     }
 
+    createContainer(): HTMLElement {
+        if (this.options.insertHere) {
+            const insertHere = document.getElementById(this.options.insertHere);
+            if (!insertHere)
+                throw Error(`Could not find tag with id ${this.options.insertHere}`);
+            insertHere.innerHTML = '';
+            return insertHere;
+        } else {
+            // Create sl-details element
+            const details = document.createElement('sl-details');
+            details.setAttribute('summary', this.options.title);
+            // Append details to group
+            group.appendChild(details);
+            return details;
+        }
+    }
+
     /** @final */
     async addToDocument(): Promise<void> {
-        const group = document.getElementById('how-to-open-group');
-        if (!group) {
-            console.error('how-to-open-group element not found');
-            return;
-        }
-
-        // Create sl-details element
-        const details = document.createElement('sl-details');
-        details.setAttribute('summary', this.title);
-
         // Create content div
         const contentDiv = document.createElement('div');
-        if (typeof this.html === 'string') {
-            contentDiv.innerHTML = this.html;
+        const html = this.options.html;
+        if (html == undefined)
+            contentDiv.innerHTML = '';
+        else if (typeof html === 'string') {
+            contentDiv.innerHTML = html;
         } else {
-            contentDiv.appendChild(this.html);
+            contentDiv.appendChild(html);
         }
 
-        // Append details to group
-        group.appendChild(details);
+        const container = this.createContainer();
 
         // Validate before adding to document
         if (validateNoDuplicateIds(contentDiv)) {
             // Append content to details
-            details.appendChild(contentDiv);
+            container.appendChild(contentDiv);
             // Call abstract init method with the content div
             this._contentDiv = contentDiv;
             await this.init();
@@ -55,7 +71,7 @@ export abstract class Provider {
             const error = document.createElement("strong")
             error.className = 'error';
             error.textContent = "Internal error. See Javascript console."
-            details.appendChild(error);
+            container.appendChild(error);
         }
     }
 
