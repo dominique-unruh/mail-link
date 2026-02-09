@@ -19,7 +19,9 @@ export class AutomaticProvider extends Provider {
             this.linkElement.textContent = "[No message ID]";
             return;
         }
-        this.linkElement.textContent = data.mid;
-        this.linkElement.href = data.mid;
+        // TODO: Theoretically, the mid should be percent-escaped here. But at least Thunderbird expects a non-escaped mid here. Should we make this configurable?
+        const uri = "mid:" + data.mid;
+        this.linkElement.textContent = uri;
+        this.linkElement.href = uri;
     }
 }
