@@ -3,7 +3,7 @@ export interface ParsedFragment {
     params: Record<string, string>;
 }
 
-// type ProviderOptions = Map<string, any>;
+// type ProviderOptions = Record<string, any>;
 
 export interface OptionStorage {
     openedProvider?: string,

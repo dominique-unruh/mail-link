@@ -83,12 +83,23 @@ function initProviderSections() {
     // Makes sure only one provider visible at once
     howToOpenGroup.addEventListener('sl-show', event => {
         const target = event.target as HTMLElement;
-        options.openedProvider = target.id.substring("provider-section-".length);
         if (target.localName === 'sl-details') {
             [...howToOpenGroup.querySelectorAll('sl-details')].map(details => (details.open = target === details));
+            options.openedProvider = target.id.substring("provider-section-".length);
+            saveOptions();
         }
-        saveOptions();
     });
+    howToOpenGroup.addEventListener('sl-hide', event => {
+        const target = event.target as HTMLElement;
+        if (target.localName === 'sl-details') {
+            const provider = target.id.substring("provider-section-".length);
+            if (options.openedProvider === provider) {
+                options.openedProvider = undefined;
+                saveOptions();
+            }
+        }
+    });
+
 
     if (options.openedProvider)
         document.getElementById("provider-section-"+options.openedProvider)?.setAttribute("open", "true");
