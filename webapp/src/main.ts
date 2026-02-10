@@ -2,12 +2,15 @@ import './style.css';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/copy-button/copy-button.js';
 import '@shoelace-style/shoelace/dist/components/details/details.js';
-import {providers} from "./providers/providers.ts";
+import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
+import {getProvider, providers} from "./providers/providers.ts";
 import type {ParsedFragment} from "./types.ts";
 import {options, saveOptions} from "./options.ts";
+import {insertHtmlLike} from "./utils.ts";
+import type {Provider} from "./provider.ts";
 
 const linkInputField = document.getElementById("link") as HTMLInputElement;
-const howToOpenGroup = document.getElementById("how-to-open-group") as HTMLDivElement;
+const providerGroup = document.getElementById("how-to-open-group") as HTMLDivElement;
 const messageIDSpan = document.getElementById("message-id-span") as HTMLSpanElement;
 
 function parseFragment(url: string): ParsedFragment | null {
@@ -75,21 +78,23 @@ async function initApp(): Promise<void> {
 
     await updatelinkInputFieldFromLocation();
 
-    initialAction();
+    initAutoAction();
+
+    await doAutoAction();
 }
 
 function initProviderSections() {
     linkInputField.addEventListener("sl-change", displayFragmentData);
     // Makes sure only one provider visible at once
-    howToOpenGroup.addEventListener('sl-show', event => {
+    providerGroup.addEventListener('sl-show', event => {
         const target = event.target as HTMLElement;
         if (target.localName === 'sl-details') {
-            [...howToOpenGroup.querySelectorAll('sl-details')].map(details => (details.open = target === details));
+            [...providerGroup.querySelectorAll('sl-details')].map(details => (details.open = target === details));
             options.openedProvider = target.id.substring("provider-section-".length);
             saveOptions();
         }
     });
-    howToOpenGroup.addEventListener('sl-hide', event => {
+    providerGroup.addEventListener('sl-hide', event => {
         const target = event.target as HTMLElement;
         if (target.localName === 'sl-details') {
             const provider = target.id.substring("provider-section-".length);
@@ -105,12 +110,66 @@ function initProviderSections() {
         document.getElementById("provider-section-"+options.openedProvider)?.setAttribute("open", "true");
 }
 
-function initialAction(): void {
-    // TODO: Make it configurable what happens automatically
-    // Auto-open mid-link on first load
-    const parsed = parseFragment(window.location.href);
-    if (parsed)
-        window.location.href = `mid:${parsed.mid}`;
+/** Sets the provider to be the responsible for the current auto action.
+ * Also calls `.lostAutoAction()` on the previous auto action provider (unless the provider did not change). */
+export function setAutoActionProvider(provider: Provider): void {
+    // console.log("setAutoActionProvider", provider.id(), options)
+    const span = document.getElementById("autoaction-span")!;
+    const checkbox = document.getElementById("autoaction-checkbox") as HTMLInputElement;
+    const previous = options.automaticProvider;
+    insertHtmlLike(span, provider.automaticActionText());
+    checkbox.style.display = 'inline';
+    checkbox.checked = true;
+    if (previous !== provider?.id()) {
+        options.automaticProvider = provider?.id();
+        saveOptions();
+    }
+    if (previous != null && previous != provider.id()) {
+        provider.lostAutoAction();
+    }
+    provider.gotAutoAction();
+}
+
+/** Removes auto action provider. Also calls `.lostAutoAction()` on the current auto action provider.
+ * If `unsetThisProvider` is given, then only unsets it, if `unsetThisProvider` is currently the auto action provider.
+ * */
+export function unsetAutoActionProvider(unsetThisProvider?: Provider): void {
+    // console.log("unsetAutoActionProvider", unsetThisProvider, options)
+    const previous = options.automaticProvider;
+    if (unsetThisProvider != null && previous != unsetThisProvider.id())
+        return;
+    const span = document.getElementById("autoaction-span")!;
+    const checkbox = document.getElementById("autoaction-checkbox") as HTMLInputElement;
+    span.innerHTML = 'Nothing (you can select something in the "How to find the email" section below).';
+    checkbox.style.display = 'none';
+    if (options.automaticProvider != null) {
+        options.automaticProvider = undefined;
+        saveOptions();
+    }
+    if (previous != null)
+        getProvider(previous)?.lostAutoAction();
+}
+
+function initAutoAction(): void {
+    const checkbox = document.getElementById("autoaction-checkbox") as HTMLInputElement;
+    const providerId = options.automaticProvider
+    const provider= providerId != null ? getProvider(providerId) : null;
+    if (provider == null && providerId != null)
+        console.error(`Provider ${providerId} not found`);
+    if (provider == null)
+        unsetAutoActionProvider();
+    else
+        setAutoActionProvider(provider);
+    checkbox.addEventListener("change", () => {
+        if (!checkbox.checked)
+            unsetAutoActionProvider();
+    });
+}
+
+async function doAutoAction(): Promise<void> {
+    if (options.automaticProvider != null) {
+        getProvider(options.automaticProvider)?.doAutoAction();
+    }
 }
 
 // Run when DOM is ready

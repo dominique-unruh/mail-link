@@ -21,5 +21,6 @@ function loadOptions(): OptionStorage {
 }
 
 export function saveOptions(): void {
+    console.log("Saving options", options);
     localStorage.setItem('mail-link-webapp', JSON.stringify(options))
 }

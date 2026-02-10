@@ -7,6 +7,8 @@ export interface ParsedFragment {
 
 export interface OptionStorage {
     openedProvider?: string,
-    // automaticProvider?: string,
+    automaticProvider?: string,
     // providerOptions?: Map<string, ProviderOptions>
 }
+
+export type HTMLLike = string | HTMLElement | DocumentFragment;

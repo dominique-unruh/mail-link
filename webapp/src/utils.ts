@@ -1,5 +1,7 @@
+import type {HTMLLike} from "./types.ts";
+
 export function shellEscape(str: string): string {
-    if (str == '') return "''";
+    if (str === '') return "''";
 
     // If string contains no special characters, return as-is
     if (/^[a-zA-Z0-9._\/:@+-]+$/.test(str)) {
@@ -69,4 +71,14 @@ export function htmlLi(...children: ReadonlyArray<HTMLElement | Text | string | 
 }
 export function htmlEm(...children: ReadonlyArray<HTMLElement | Text | string | string[]>): HTMLElement {
     return htmlTag("em", ...children);
+}
+
+export function insertHtmlLike(parent: HTMLElement, html: HTMLLike | null | undefined): void {
+    if (html == null)
+        parent.innerHTML = '';
+    else if (typeof html === 'string') {
+        parent.innerHTML = html;
+    } else {
+        parent.appendChild(html);
+    }
 }

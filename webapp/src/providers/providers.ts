@@ -12,3 +12,6 @@ export let providers: ReadonlyArray<Provider> = [
     new DataTableProvider(),
 ];
 
+export function getProvider(id: string): Provider | null {
+    return providers.find(provider => provider.id() === id) || null;
+}
