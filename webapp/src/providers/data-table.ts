@@ -1,3 +1,4 @@
+import "./data-table.css";
 import {Provider} from "../provider.ts";
 import {escapeHtml} from "../utils.ts";
 import type {ParsedFragment} from "../types.ts";
@@ -23,13 +24,7 @@ export class DataTableProvider extends Provider {
             tableContainer.innerHTML = `<p style="color: #999;">No additional parameters</p>`;
         } else {
             let tableHtml = `
-          <table style="margin-top: 1rem; border-collapse: collapse; width: 100%;">
-            <thead>
-              <tr style="background: #f0f0f0;">
-                <th style="padding: 0.5rem; text-align: left; border: 1px solid #ddd;">Key</th>
-                <th style="padding: 0.5rem; text-align: left; border: 1px solid #ddd;">Value</th>
-              </tr>
-            </thead>
+          <table class="data-table">
             <tbody>
         `;
 
