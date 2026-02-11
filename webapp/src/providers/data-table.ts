@@ -18,6 +18,25 @@ class DefaultRenderer implements RowRenderer {
     }
 }
 
+class NamedRenderer extends DefaultRenderer {
+    private name: string;
+    constructor(name: string) {
+        super();
+        this.name = name;
+    }
+    renderKey(): HTMLLike {
+        return this.name;
+    }
+}
+
+const renderers: Record<string, RowRenderer> = {
+    "subject": new NamedRenderer("Subject"),
+    "date": new NamedRenderer("Date"),
+    "from": new NamedRenderer("Sender"),
+    "to": new NamedRenderer("Recipient(s)"),
+    "whohasit": new NamedRenderer("Who has the mail?"),
+}
+
 const defaultRenderer = new DefaultRenderer();
 
 export class DataTableProvider extends Provider {
@@ -36,7 +55,7 @@ export class DataTableProvider extends Provider {
         const tbody = htmlTag("tbody");
 
         for (const [key, value] of Object.entries(parsed.params)) {
-            const renderer = defaultRenderer;
+            const renderer = renderers[key] ?? defaultRenderer;
             const keyCell = htmlTag("td", renderer.renderKey(key));
             const valueCell = htmlTag("td", renderer.renderValue(value));
             tbody.appendChild(htmlTag("tr", keyCell, valueCell));

@@ -79,7 +79,7 @@ export function appendHtmlLike(parent: HTMLElement, html: HTMLLike): void {
     } else if (typeof html === "string") {
         const span = document.createElement("span")
         span.innerHTML = html;
-        for (const child of Array.from(span.children)) {
+        for (const child of Array.from(span.childNodes)) {
             parent.appendChild(child);
         }
     } else if (html instanceof HTMLElement || html instanceof Text)
