@@ -63,6 +63,7 @@ export class ManualProvider extends Provider {
         while (changed) {
             changed = false;
             strip("Re:");
+            strip("Fwd:");
             strip("AW:");
             strip("Vs:");
         }
