@@ -1,4 +1,4 @@
-import {insertHtmlLike, validateNoDuplicateIds} from "./utils.ts";
+import {insertHtmlLike, text, validateNoDuplicateIds} from "./utils.ts";
 import type {HTMLLike, ParsedFragment} from "./types.ts";
 import {setAutoActionProvider, unsetAutoActionProvider} from "./main.ts";
 
@@ -95,12 +95,15 @@ export abstract class Provider {
 
     /** Called after registering the provider. Can initialize the content more or do whatever. */
     protected abstract init(): void | Promise<void>;
+    /** Called whenever the data in the URL changes (also after initial loading).
+     * If `parsed==null`, this means no email is currently being referenced.
+     **/
     abstract dataChanged(parsed: ParsedFragment | null): void | Promise<void>;
     /** User readable description of the automatic action that will be performed by this provider.
      * Must provide suitable text if the current provider has registered as automatic action provider.
      **/
     automaticActionText(): HTMLLike {
         console.error("automaticActionText called by provider that doesn't support automatic actions")
-        return "[Internal error (see the console)]"
+        return text("[Internal error (see the console)]")
     }
 }

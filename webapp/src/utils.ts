@@ -49,36 +49,47 @@ export function validateNoDuplicateIds(container: HTMLElement): boolean {
     return true;
 }
 
-export function htmlTag<T extends HTMLElement>(name: string, ...children: ReadonlyArray<HTMLElement | Text | string | string[]>): T {
-    const tag = document.createElement(name) as T;
-    for (const child of children) {
-        if (Array.isArray(child)) {
-            const [key, value] = child;
-            tag.setAttribute(key, value)
-        } else if (typeof child === "string")
-           tag.appendChild(document.createTextNode(child));
-        else
-            tag.appendChild(child);
-    }
+export function htmlTag(name: string, ...children: ReadonlyArray<HTMLLike>): HTMLElement {
+    const tag = document.createElement(name);
+    for (const child of children)
+        appendHtmlLike(tag, child);
     return tag;
 }
 
-export function htmlP(...children: ReadonlyArray<HTMLElement | Text | string | string[]>): HTMLParagraphElement {
-    return htmlTag<HTMLParagraphElement>("p", ...children);
+export function htmlP(...children: ReadonlyArray<HTMLLike>): HTMLParagraphElement {
+    return htmlTag("p", ...children) as HTMLParagraphElement;
 }
-export function htmlLi(...children: ReadonlyArray<HTMLElement | Text | string | string[]>): HTMLLIElement {
-    return htmlTag<HTMLLIElement>("li", ...children);
+export function htmlLi(...children: ReadonlyArray<HTMLLike>): HTMLLIElement {
+    return htmlTag("li", ...children) as HTMLLIElement;
 }
-export function htmlEm(...children: ReadonlyArray<HTMLElement | Text | string | string[]>): HTMLElement {
+export function htmlEm(...children: ReadonlyArray<HTMLLike>): HTMLElement {
     return htmlTag("em", ...children);
 }
 
 export function insertHtmlLike(parent: HTMLElement, html: HTMLLike | null | undefined): void {
-    if (html == null)
-        parent.innerHTML = '';
-    else if (typeof html === 'string') {
-        parent.innerHTML = html;
-    } else {
+    parent.innerHTML = '';
+    if (html != null)
+        appendHtmlLike(parent, html);
+}
+
+export function appendHtmlLike(parent: HTMLElement, html: HTMLLike): void {
+    if (Array.isArray(html) && html.length == 2) {
+        const [key, value] = html;
+        parent.setAttribute(key, value)
+    } else if (typeof html === "string") {
+        const span = document.createElement("span")
+        span.innerHTML = html;
+        for (const child of Array.from(span.children)) {
+            parent.appendChild(child);
+        }
+    } else if (html instanceof HTMLElement || html instanceof Text)
         parent.appendChild(html);
+    else {
+        console.error("appendHtmlLike with invalid argument", parent, html);
+        throw Error("appendHtmlLike with invalid argument");
     }
+}
+
+export function text(text: string): Text {
+    return document.createTextNode(text);
 }

@@ -11,7 +11,6 @@ import type {Provider} from "./provider.ts";
 
 const linkInputField = document.getElementById("link") as HTMLInputElement;
 const providerGroup = document.getElementById("how-to-open-group") as HTMLDivElement;
-const messageIDSpan = document.getElementById("message-id-span") as HTMLSpanElement;
 
 function parseFragment(url: string): ParsedFragment | null {
     const hash = new URL(url).hash;
@@ -49,13 +48,6 @@ function parseFragment(url: string): ParsedFragment | null {
 
 async function displayFragmentData(): Promise<void> {
     const parsed = parseFragment(linkInputField.value);
-
-    if (!parsed) {
-        messageIDSpan.textContent = "[No message ID]";
-        return;
-    }
-
-    messageIDSpan.textContent = parsed.mid;
 
     for (const provider of providers)
         await provider.dataChanged(parsed);

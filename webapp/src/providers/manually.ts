@@ -1,5 +1,5 @@
 import {Provider} from "../provider.ts";
-import {htmlEm, htmlLi, htmlP, htmlTag} from "../utils.ts";
+import {htmlEm, htmlLi, htmlP, htmlTag, text} from "../utils.ts";
 import type {ParsedFragment} from "../types.ts";
 
 export class ManualProvider extends Provider {
@@ -22,14 +22,14 @@ export class ManualProvider extends Provider {
 
         function quote(str: string): HTMLElement {
             const id = `str-${Math.random().toString(36).substring(2, 11)}`;
-            const em = htmlEm(str, ["id", id]);
+            const em = htmlEm(text(str), ["id", id]);
             const copy = htmlTag("sl-copy-button", ['from', id]);
-            return htmlTag("span", em, " ", copy);
+            return htmlTag("span", em, text(" "), copy);
         }
 
         div.replaceChildren();
 
-        div.appendChild(htmlP("To find this email manually, use your favorite mail client, and search for it manually given the information in the link:"));
+        div.appendChild(htmlP(text("To find this email manually, use your favorite mail client, and search for it manually given the information in the link:")));
 
         const items: HTMLLIElement[] = [];
 
@@ -46,8 +46,8 @@ export class ManualProvider extends Provider {
 
         div.appendChild(htmlTag("ul", ...items));
 
-        div.appendChild(htmlP("If you don't find it (maybe you don't actually have that email), you might try to contact the creator of this link (",
-            parsed.params["whohasit"] ? quote(parsed.params["whohasit"]) : "if you know who that is",
+        div.appendChild(htmlP(text("If you don't find it (maybe you don't actually have that email), you might try to contact the creator of this link ("),
+            parsed.params["whohasit"] ? quote(parsed.params["whohasit"]) : text("if you know who that is"),
             ")."));
     }
 

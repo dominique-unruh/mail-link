@@ -1,7 +1,24 @@
 import "./data-table.css";
 import {Provider} from "../provider.ts";
-import {escapeHtml} from "../utils.ts";
-import type {ParsedFragment} from "../types.ts";
+import {htmlTag, insertHtmlLike, text} from "../utils.ts";
+import type {HTMLLike, ParsedFragment} from "../types.ts";
+
+interface RowRenderer {
+    renderKey: (key: string) => HTMLLike;
+    renderValue: (value: string) => HTMLLike;
+}
+
+class DefaultRenderer implements RowRenderer {
+    renderKey(key: string): HTMLLike {
+        return text(key);
+    }
+
+    renderValue(value: string): HTMLLike {
+        return text(value);
+    }
+}
+
+const defaultRenderer = new DefaultRenderer();
 
 export class DataTableProvider extends Provider {
     constructor() {
@@ -11,38 +28,21 @@ export class DataTableProvider extends Provider {
     protected init(): void | Promise<void> {}
 
     dataChanged(parsed: ParsedFragment | null): void | Promise<void> {
-        const tableContainer = this.contentDiv();
-
         if (!parsed) {
-            tableContainer.innerHTML = '<p style="color: #999;">No fragment data in URL</p>';
+            this.contentDiv().innerHTML = '<p style="color: #999;">[Link is incomplete!]</p>';
             return;
         }
 
-        const paramCount = Object.keys(parsed.params).length;
+        const tbody = htmlTag("tbody");
 
-        if (paramCount === 0) {
-            tableContainer.innerHTML = `<p style="color: #999;">No additional parameters</p>`;
-        } else {
-            let tableHtml = `
-          <table class="data-table">
-            <tbody>
-        `;
-
-            for (const [key, value] of Object.entries(parsed.params)) {
-                tableHtml += `
-            <tr>
-              <td style="padding: 0.5rem; border: 1px solid #ddd;">${escapeHtml(key)}</td>
-              <td style="padding: 0.5rem; border: 1px solid #ddd;">${escapeHtml(value)}</td>
-            </tr>
-          `;
-            }
-
-            tableHtml += `
-            </tbody>
-          </table>
-        `;
-
-            tableContainer.innerHTML = tableHtml;
+        for (const [key, value] of Object.entries(parsed.params)) {
+            const renderer = defaultRenderer;
+            const keyCell = htmlTag("td", renderer.renderKey(key));
+            const valueCell = htmlTag("td", renderer.renderValue(value));
+            tbody.appendChild(htmlTag("tr", keyCell, valueCell));
         }
+
+        insertHtmlLike(this.contentDiv(),
+            htmlTag("table", ["class", "data-table"], tbody));
     }
 }

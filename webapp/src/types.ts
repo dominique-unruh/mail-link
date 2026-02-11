@@ -11,4 +11,4 @@ export interface OptionStorage {
     // providerOptions?: Map<string, ProviderOptions>
 }
 
-export type HTMLLike = string | HTMLElement | DocumentFragment;
+export type HTMLLike = string | HTMLElement | DocumentFragment | Text | [string, string];
