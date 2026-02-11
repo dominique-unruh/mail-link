@@ -114,11 +114,15 @@ function initProviderSections() {
  * Also calls `.lostAutoAction()` on the previous auto action provider (unless the provider did not change). */
 export function setAutoActionProvider(provider: Provider): void {
     // console.log("setAutoActionProvider", provider.id(), options)
+    const section = document.getElementById("automatic-action-section")!;
     const span = document.getElementById("autoaction-span")!;
     const checkbox = document.getElementById("autoaction-checkbox") as HTMLInputElement;
     const previous = options.automaticProvider;
     insertHtmlLike(span, provider.automaticActionText());
-    checkbox.style.display = 'inline';
+    // checkbox.style.display = 'inline';
+    checkbox.disabled = false;
+    checkbox.title = "Click to disable automatic action."
+    section.style.display = 'block';
     checkbox.checked = true;
     if (previous !== provider?.id()) {
         options.automaticProvider = provider?.id();
@@ -140,8 +144,11 @@ export function unsetAutoActionProvider(unsetThisProvider?: Provider): void {
         return;
     const span = document.getElementById("autoaction-span")!;
     const checkbox = document.getElementById("autoaction-checkbox") as HTMLInputElement;
-    span.innerHTML = 'Nothing (you can select something in the "How to find the email" section below).';
-    checkbox.style.display = 'none';
+    span.innerHTML = 'None (you can select something to happen automatically in the "How to find the email" section below).';
+    // checkbox.style.display = 'none';
+    checkbox.checked = false;
+    checkbox.disabled = true;
+    checkbox.title = "To activate automatic action, choose one in the \"How to find the email\" section below."
     if (options.automaticProvider != null) {
         options.automaticProvider = undefined;
         saveOptions();

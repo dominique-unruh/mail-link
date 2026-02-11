@@ -34,7 +34,6 @@ export class AutomaticProvider extends Provider {
     }
 
     lostAutoAction() {
-        console.log("Lost");
         this.autoActionCheckbox.checked = false;
     }
 

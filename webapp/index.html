@@ -7,31 +7,35 @@
 </head>
 <body>
 <div id="app">
-  <h1>Resolve Email Link</h1>
+  <h1>Referencing an email</h1>
 
-  <div>
-    <label for="link">Processing the following email link:</label>
-    <sl-input id="link"></sl-input>
-    <sl-copy-button from="link.value"></sl-copy-button>
-  </div>
-
-  <div>
-    <strong>Message ID:</strong> <span id="message-id-span">[No message ID]</span>
-    <sl-copy-button from="message-id-span"></sl-copy-button>
-  </div>
+  <p>The sender of this link references the email described below:</p>
 
   <div id="data-table" style="margin: 2rem 0;">
     <!-- Inserted by DataTableProvider -->
     <p style="color: #999;">Loading...</p>
   </div>
 
+  <div style="display: none;">
+    <label for="link">Processing the following email link:</label>
+    <sl-input id="link"></sl-input>
+    <sl-copy-button from="link.value"></sl-copy-button>
+  </div>
+
+  <div> <!-- TODO: include in the table -->
+    <strong>Message ID:</strong> <span id="message-id-span">[No message ID]</span>
+    <sl-copy-button from="message-id-span"></sl-copy-button>
+  </div>
+
+  <span id="automatic-action-section" style="display: none;">
   <h2>Automatic action</h2>
 
   <p>
     <!--suppress HtmlFormInputWithoutLabel -->
-    <input type="checkbox" id="autoaction-checkbox" title="Deactivate automatic action"/>
+    <input type="checkbox" switch="true" id="autoaction-checkbox" title="Deactivate automatic action" disabled/>
     <span id="autoaction-span">[Loading...]</span>
   </p>
+  </span>
 
   <h2>How to find the email?</h2>
   <div id="how-to-open-group">
