@@ -4,11 +4,12 @@
 browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
   try {
     // Get the displayed message
+    // Type: MessageHeader, https://thunderbird-webextension-apis.readthedocs.io/en/102/messages.html#messages-messageheader
     let message = await browser.messageDisplay.getDisplayedMessage(tab.id);
 
     // Get options from storage
     let options = await browser.storage.sync.get();
-    console.log(options)
+
     if (!options.baseUrl || options.baseUrl === "") {
       browser.runtime.openOptionsPage();
       return;
@@ -17,13 +18,10 @@ browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
     if (!message)
       throw Error("No message displayed");
 
-    // Get full message details
-    let messageData = await browser.messages.get(message.id);
-
     // Construct the URL
-    let url = constructUrl(messageData, options);
+    let url = constructUrl(message, options);
 
-    let linkTitle = await makeLinkTitle(messageData);
+    let linkTitle = await makeLinkTitle(message);
 
     await urlToClipboard(url, linkTitle);
 
@@ -75,8 +73,7 @@ function constructUrl(message, options) {
   }
   
   if (options.includeDate && message.date) {
-    // Format date as ISO 8601
-    let dateStr = new Date(message.date).toISOString();
+    let dateStr = formatRFC5322(message.date);
     url += "&date=" + myEncodeURIComponent(dateStr);
   }
   
@@ -131,4 +128,21 @@ async function makeLinkTitle(message) {
     console.error("makeLinkTitle", message, e);
     return "Email";
   }
+}
+
+function formatRFC5322(date) {
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  const pad = (n) => String(n).padStart(2, '0');
+
+  const offset = -date.getTimezoneOffset();
+  const offsetSign = offset >= 0 ? '+' : '-';
+  const offsetHours = pad(Math.floor(Math.abs(offset) / 60));
+  const offsetMinutes = pad(Math.abs(offset) % 60);
+
+  return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()} ` +
+      `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())} ` +
+      `${offsetSign}${offsetHours}${offsetMinutes}`;
 }
