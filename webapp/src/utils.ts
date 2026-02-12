@@ -93,3 +93,23 @@ export function appendHtmlLike(parent: HTMLElement, html: HTMLLike): void {
 export function text(text: string): Text {
     return document.createTextNode(text);
 }
+
+export function strippedSubject(subject: string): [string, string] {
+    let origSubject = subject;
+    var changed = true;
+    function strip(prefix: string) {
+        subject = subject.trimStart();
+        if (subject.startsWith(prefix)) {
+            subject = subject.substring(prefix.length);
+            changed = true;
+        }
+    }
+    while (changed) {
+        changed = false;
+        strip("Re:");
+        strip("Fwd:");
+        strip("AW:");
+        strip("Vs:");
+    }
+    return [subject, origSubject.substring(0, origSubject.length-subject.length)];
+}

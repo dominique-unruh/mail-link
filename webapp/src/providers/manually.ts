@@ -1,5 +1,5 @@
 import {Provider} from "../provider.ts";
-import {htmlEm, htmlLi, htmlP, htmlTag, text} from "../utils.ts";
+import {htmlEm, htmlLi, htmlP, htmlTag, strippedSubject, text} from "../utils.ts";
 import type {ParsedFragment} from "../types.ts";
 
 export class ManualProvider extends Provider {
@@ -34,7 +34,7 @@ export class ManualProvider extends Provider {
         const items: HTMLLIElement[] = [];
 
         if (parsed.params["subject"])
-            items.push(htmlLi("Search by subject: ", quote(ManualProvider.strippedSubject(parsed.params["subject"]))));
+            items.push(htmlLi("Search by subject: ", quote(strippedSubject(parsed.params["subject"])[0])));
         if (parsed.params["date"])
             items.push(htmlLi("Search by sending date: ", quote(parsed.params["date"])));
         if (parsed.params["from"])
@@ -49,24 +49,5 @@ export class ManualProvider extends Provider {
         div.appendChild(htmlP(text("If you don't find it (maybe you don't actually have that email), you might try to contact the creator of this link ("),
             parsed.params["whohasit"] ? quote(parsed.params["whohasit"]) : text("if you know who that is"),
             ")."));
-    }
-
-    static strippedSubject(subject: string): string {
-        var changed = true;
-        function strip(prefix: string) {
-            subject = subject.trimStart();
-            if (subject.startsWith(prefix)) {
-                subject = subject.substring(prefix.length);
-                changed = true;
-            }
-        }
-        while (changed) {
-            changed = false;
-            strip("Re:");
-            strip("Fwd:");
-            strip("AW:");
-            strip("Vs:");
-        }
-        return subject;
     }
 }

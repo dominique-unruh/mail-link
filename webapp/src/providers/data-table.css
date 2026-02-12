@@ -20,3 +20,6 @@ table.data-table {
     background-color: #e9ecef;
 }
 
+.data-table-grayed {
+    color: gray;
+}
