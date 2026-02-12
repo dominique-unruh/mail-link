@@ -1,7 +1,6 @@
 // Install the actions of the
 // noinspection ExceptionCaughtLocallyJS
 
-// Add the button to the message display action toolbar
 browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
   try {
     // Get the displayed message
@@ -24,7 +23,10 @@ browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
     // Construct the URL
     let url = constructUrl(messageData, options);
 
-    await navigator.clipboard.writeText(url);
+    let linkTitle = await makeLinkTitle(messageData);
+    console.log(linkTitle);
+
+    await urlToClipboard(url, linkTitle);
 
     // Show notification
     await browser.notifications.create({
@@ -95,4 +97,41 @@ function constructUrl(message, options) {
   url = fixupURL(url);
 
   return url;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+async function urlToClipboard(url, title) {
+  const html = `<a href="${url}">${escapeHtml(title)}</a>`;
+
+  const clipboardItem = new ClipboardItem({
+    'text/html': new Blob([html], { type: 'text/html' }),
+    'text/plain': new Blob([url], { type: 'text/plain' })
+  });
+
+  await navigator.clipboard.write([clipboardItem]);
+}
+
+async function makeLinkTitle(message) {
+  try {
+    const parsedSender = (await browser.messengerUtilities.parseMailboxString(message.author))[0];
+    console.log(message.author, parsedSender);
+    const name = parsedSender.name;
+    const email = parsedSender.email;
+    console.log(message.author, parsedSender, name, email);
+    if (name != null)
+      return `Email from ${name}`;
+    else if (email != null) {
+      const localPart = email.substring(0, email.indexOf('@'));
+      return `Email from "${localPart}"`;
+    } else
+      return "Email";
+  } catch (e) {
+    console.error("makeLinkTitle", message, e);
+    return "Email";
+  }
 }
