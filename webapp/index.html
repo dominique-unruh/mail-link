@@ -22,21 +22,21 @@
     <sl-copy-button from="link.value"></sl-copy-button>
   </div>
 
-  <span id="automatic-action-section" style="display: none;">
+  <div id="automatic-action-section" style="display: none;">
   <h2>Automatic action</h2>
 
   <p>
-    <!--suppress HtmlFormInputWithoutLabel -->
+    <!--suppress HtmlFormInputWithoutLabel, HtmlUnknownAttribute -->
     <input type="checkbox" switch="true" id="autoaction-checkbox" title="Deactivate automatic action" disabled/>
     <span id="autoaction-span">[Loading...]</span>
   </p>
-  </span>
+  </div>
 
   <h2>How to find the email?</h2>
   <div id="how-to-open-group">
-    <!-- Inserted by providers from providers.ts -->
+    <!-- Inserted by the providers configured in providers.ts -->
   </div>
 </div>
-<script type="module" src="/src/main.ts"></script>
+<script type="module" src="src/main.ts"></script>
 </body>
 </html>
