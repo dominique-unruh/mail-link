@@ -24,7 +24,6 @@ browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
     let url = constructUrl(messageData, options);
 
     let linkTitle = await makeLinkTitle(messageData);
-    console.log(linkTitle);
 
     await urlToClipboard(url, linkTitle);
 
@@ -119,10 +118,8 @@ async function urlToClipboard(url, title) {
 async function makeLinkTitle(message) {
   try {
     const parsedSender = (await browser.messengerUtilities.parseMailboxString(message.author))[0];
-    console.log(message.author, parsedSender);
     const name = parsedSender.name;
     const email = parsedSender.email;
-    console.log(message.author, parsedSender, name, email);
     if (name != null)
       return `Email from ${name}`;
     else if (email != null) {
