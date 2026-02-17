@@ -52,10 +52,17 @@ function myEncodeURIComponent(uriComponent) {
 /** Optionally quotes the last character of the URI to make sure the URI is more suitable for automatic recognition inside plain text.
  * E.g., doesn't end in a `.`. */
 function fixupURL(url) {
+  // The pattern guarantees that we don't escape anything alphanumeric (which first isn't worth quoting and second might be part of an already escaped character)
+  // nor any symbols that are part of not to be quoted URL parts (such as path separator /, query-string syntax elements &,=, etc.)
   return url.replace(/[^a-zA-Z0-9/&#=]$/, (char) => '%' + char.charCodeAt(0).toString(16).toUpperCase());
 }
 
-// Construct the message link URL
+/** Construct the URL linking to email `message`.
+ *
+ * @param message Type MessageHeader, https://thunderbird-webextension-apis.readthedocs.io/en/102/messages.html#messages-messageheader
+ * @param options Dictionary containing the user config of this extension
+ * @returns URL as a string
+ */
 function constructUrl(message, options) {
   let url = options.baseUrl;
   
@@ -101,6 +108,9 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+/** Copied `url` to the clipboard.
+ * When pasted into a target supporting rich text, it will be pasted as a hyperlink to `url`, with text `title`.
+ */
 async function urlToClipboard(url, title) {
   const html = `<a href="${url}">${escapeHtml(title)}</a>`;
 
