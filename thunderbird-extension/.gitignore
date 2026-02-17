@@ -1,1 +1,3 @@
 /copy-message-link-*.xpi
+/node_modules
+/dist

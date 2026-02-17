@@ -1,17 +1,18 @@
 // Install the actions of the
 // noinspection ExceptionCaughtLocallyJS
 
+import MessageHeader = browser.messages.MessageHeader;
+
 browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
   try {
     // Get the displayed message
-    // Type: MessageHeader, https://thunderbird-webextension-apis.readthedocs.io/en/102/messages.html#messages-messageheader
-    let message = await browser.messageDisplay.getDisplayedMessage(tab.id);
+    let message = (await browser.messageDisplay.getDisplayedMessage(tab.id!))!;
 
     // Get options from storage
-    let options = await browser.storage.sync.get();
+    let options = await browser.storage.sync.get() as Options;
 
     if (!options.baseUrl || options.baseUrl === "") {
-      browser.runtime.openOptionsPage();
+      await browser.runtime.openOptionsPage();
       return;
     }
 
@@ -38,32 +39,28 @@ browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
       type: "basic",
       iconUrl: "icon.svg",
       title: "Copy Message Link",
-      message: "Error: " + error.message
+      message: "Error: " + (error as Error).message
     });
   }
 });
 
 /** Like encodeURIComponent but encodes additional characters that make the URI more suitable for automatic recognition inside plain text */
-function myEncodeURIComponent(uriComponent) {
+function myEncodeURIComponent(uriComponent: string) {
   return encodeURIComponent(uriComponent)
       .replace(/'/g, (char) => '%' + char.charCodeAt(0).toString(16).toUpperCase());
 }
 
 /** Optionally quotes the last character of the URI to make sure the URI is more suitable for automatic recognition inside plain text.
  * E.g., doesn't end in a `.`. */
-function fixupURL(url) {
+function fixupURL(url: string) {
   // The pattern guarantees that we don't escape anything alphanumeric (which first isn't worth quoting and second might be part of an already escaped character)
   // nor any symbols that are part of not to be quoted URL parts (such as path separator /, query-string syntax elements &,=, etc.)
   return url.replace(/[^a-zA-Z0-9/&#=]$/, (char) => '%' + char.charCodeAt(0).toString(16).toUpperCase());
 }
 
 /** Construct the URL linking to email `message`.
- *
- * @param message Type MessageHeader, https://thunderbird-webextension-apis.readthedocs.io/en/102/messages.html#messages-messageheader
- * @param options Dictionary containing the user config of this extension
- * @returns URL as a string
  */
-function constructUrl(message, options) {
+function constructUrl(message: browser.messages.MessageHeader, options: Options): string {
   let url = options.baseUrl;
   
   // Get message ID
@@ -80,7 +77,7 @@ function constructUrl(message, options) {
   }
   
   if (options.includeDate && message.date) {
-    let dateStr = formatRFC5322(message.date);
+    let dateStr = formatRFC5322(message.date as Date);
     url += "&date=" + myEncodeURIComponent(dateStr);
   }
   
@@ -102,7 +99,7 @@ function constructUrl(message, options) {
   return url;
 }
 
-function escapeHtml(text) {
+function escapeHtml(text: string) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
@@ -111,7 +108,7 @@ function escapeHtml(text) {
 /** Copied `url` to the clipboard.
  * When pasted into a target supporting rich text, it will be pasted as a hyperlink to `url`, with text `title`.
  */
-async function urlToClipboard(url, title) {
+async function urlToClipboard(url: string, title: string): Promise<void> {
   const html = `<a href="${url}">${escapeHtml(title)}</a>`;
 
   const clipboardItem = new ClipboardItem({
@@ -122,7 +119,7 @@ async function urlToClipboard(url, title) {
   await navigator.clipboard.write([clipboardItem]);
 }
 
-async function makeLinkTitle(message) {
+async function makeLinkTitle(message: MessageHeader): Promise<string> {
   try {
     const parsedSender = (await browser.messengerUtilities.parseMailboxString(message.author))[0];
     const name = parsedSender.name;
@@ -140,12 +137,12 @@ async function makeLinkTitle(message) {
   }
 }
 
-function formatRFC5322(date) {
+function formatRFC5322(date: Date) {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-  const pad = (n) => String(n).padStart(2, '0');
+  const pad = (n: any) => String(n).padStart(2, '0');
 
   const offset = -date.getTimezoneOffset();
   const offsetSign = offset >= 0 ? '+' : '-';

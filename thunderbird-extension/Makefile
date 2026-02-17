@@ -1,14 +1,17 @@
-VERSION = $(shell jq -r .version manifest.json)
+VERSION = $(shell jq -r .version package.json)
 XPI = copy-message-link-$(VERSION).xpi
-SOURCES = copy.js icon.svg manifest.json options.html options.js
+SOURCES = $(wildcard dist/*) dist/options.js
 
 xpi: $(XPI)
 
+$(SOURCES):
+	npm run build
+
 $(XPI) : $(SOURCES) Makefile
-	zip -r $@ $(SOURCES)
+	cd dist && zip -r ../$@ .
 
 clean :
-	rm -f copy-message-link-*.xpi
+	rm -f copy-message-link-*.xpi dist/
 
 # For Linux. Use with care!
 install-xpi: $(XPI)

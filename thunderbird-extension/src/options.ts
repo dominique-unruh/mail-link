@@ -13,7 +13,7 @@ async function loadOptions() {
       includeDate: true,
       includeFrom: true,
       includeTo: true
-    });
+    }) as Options;
 
     document.getElementById("baseUrl").addEventListener("input", validateOptions);
     document.getElementById("whoHasIt").addEventListener("input", validateOptions);
@@ -68,9 +68,9 @@ function validateOptions() {
 }
 
 // Save options
-async function saveOptions(e) {
+async function saveOptions(e: SubmitEvent) {
   e.preventDefault();
-  
+
   try {
     let options = {
       baseUrl: document.getElementById("baseUrl").value,
@@ -97,7 +97,7 @@ async function saveOptions(e) {
   } catch (error) {
     console.error("Error saving options:", error);
     let status = document.getElementById("status");
-    status.textContent = "Error saving options: " + error.message;
+    status.textContent = "Error saving options: " + (error as Error).message;
     status.className = "status";
     status.style.display = "block";
   }
