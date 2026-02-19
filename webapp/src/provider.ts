@@ -1,8 +1,9 @@
 import {insertHtmlLike, text, validateNoDuplicateIds} from "./utils.ts";
-import type {HTMLLike, ParsedFragment} from "./types.ts";
+import type {HTMLLike, ParsedFragment, ProviderOptions} from "./types.ts";
 import {setAutoActionProvider, unsetAutoActionProvider} from "./main.ts";
+import {options} from "./options.ts";
 
-interface ProviderOptions {
+interface ProviderArguments {
     /** A unique ID identifying this provider */
     readonly id: string;
     readonly title: string;
@@ -14,30 +15,31 @@ const group: HTMLElement = document.getElementById('how-to-open-group') ||
     (()=>{throw Error('how-to-open-group element not found')})();
 
 export abstract class Provider {
-    private readonly options: ProviderOptions;
+    private readonly arguments: ProviderArguments;
     private _contentDiv!: HTMLDivElement;
+    private _options?: ProviderOptions;
 
     /** @final */
     id(): string {
-        return this.options.id;
+        return this.arguments.id;
     }
 
-    protected constructor(options: ProviderOptions) {
-        this.options = options;
+    protected constructor(args: ProviderArguments) {
+        this.arguments = args;
     }
 
     createContainer(): HTMLElement {
-        if (this.options.insertHere) {
-            const insertHere = document.getElementById(this.options.insertHere);
+        if (this.arguments.insertHere) {
+            const insertHere = document.getElementById(this.arguments.insertHere);
             if (!insertHere)
-                throw Error(`Could not find tag with id ${this.options.insertHere}`);
+                throw Error(`Could not find tag with id ${this.arguments.insertHere}`);
             insertHere.innerHTML = '';
             return insertHere;
         } else {
             // Create sl-details element
             const details = document.createElement('sl-details');
-            details.setAttribute('summary', this.options.title);
-            details.setAttribute('id', "provider-section-"+this.options.id);
+            details.setAttribute('summary', this.arguments.title);
+            details.setAttribute('id', "provider-section-"+this.arguments.id);
             // Append details to group
             group.appendChild(details);
             return details;
@@ -48,7 +50,7 @@ export abstract class Provider {
     async addToDocument(): Promise<void> {
         // Create content div
         const contentDiv = document.createElement('div');
-        insertHtmlLike(contentDiv, this.options.html);
+        insertHtmlLike(contentDiv, this.arguments.html);
 
         const container = this.createContainer();
 
@@ -105,5 +107,16 @@ export abstract class Provider {
     automaticActionText(): HTMLLike {
         console.error("automaticActionText called by provider that doesn't support automatic actions")
         return text("[Internal error (see the console)]")
+    }
+
+    options(): ProviderOptions {
+        if (this._options != null)
+            return this._options;
+        if (options.providerOptions == null)
+            options.providerOptions = {}
+        if (options.providerOptions[this.id()] == null)
+            options.providerOptions[this.id()] = {};
+        this._options = options.providerOptions[this.id()];
+        return this._options;
     }
 }

@@ -3,12 +3,12 @@ export interface ParsedFragment {
     params: Record<string, string>;
 }
 
-// type ProviderOptions = Record<string, any>;
+export type ProviderOptions = Record<string, any>;
 
 export interface OptionStorage {
     openedProvider?: string,
     automaticProvider?: string,
-    // providerOptions?: Map<string, ProviderOptions>
+    providerOptions?: Record<string, ProviderOptions>
 }
 
 export type HTMLLike = string | HTMLElement | DocumentFragment | Text | [string, string];

@@ -1,0 +1,15 @@
+<p>The following link will search the message automatically in your GMail account:
+<span style="display: block; text-align: center"><a id="gmail-link" target="_blank">[Link not yet loaded]</a>
+<sl-copy-button from="gmail-link[href]"></sl-copy-button></span>
+(Alternatively, you can still manually search, see the "Manually" section.)
+</p>
+
+<label for="gmail-account-number">GMail account number:</label>
+<input type="number" id="gmail-account-number"
+    title="If you are logged in into several GMail accounts at once, this indicates in which of them you want to search."
+    min="0" step="1" style="width: 3rem"/>
+
+<p>
+<input type="checkbox" switch="true" id="gmail-autoaction">
+<label for="gmail-autoaction">Automatically open this search on page load.</label>
+</p>
