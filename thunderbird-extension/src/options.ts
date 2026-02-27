@@ -50,18 +50,15 @@ function validateOptions() {
   if (errors.length === 0) {
     document.getElementById("errors").style.display = "none";
     document.getElementById("save-button").disabled = false;
+    document.getElementById("errors-ul")!.innerHTML = "";
   } else {
-    let errorHtml = "<strong>There are errors:</strong><ul>";
+    let errorsUl = document.getElementById("errors-ul")!;
+    errorsUl.innerHTML = "";
     errors.forEach(error => {
-      let escaped = error.replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
-      errorHtml += "<li>" + escaped + "</li>";
+      let li = document.createElement("li");
+      li.textContent = error;
+      errorsUl.appendChild(li);
     });
-    errorHtml += "</ul>";
-    document.getElementById("errors").innerHTML = errorHtml;
     document.getElementById("errors").style.display = "block";
     document.getElementById("save-button").disabled = true;
   }
