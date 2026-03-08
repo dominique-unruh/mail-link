@@ -10,6 +10,7 @@ table.data-table {
     color: #212529;
     border: 1px solid #e9ecef;
     padding: 0.5rem;
+    word-break: break-word;
 }
 
 .data-table tr:nth-child(odd) {
