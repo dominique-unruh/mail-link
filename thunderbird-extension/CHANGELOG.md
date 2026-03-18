@@ -1,3 +1,7 @@
+# Version 1.2
+
+- Added a privacy notice in option page. (Mandatory to accept.)
+
 # Version 1.1
 
 - When copying into a rich text documents (and most other places where text can be formatted)
