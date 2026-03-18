@@ -11,7 +11,7 @@ browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
     // Get options from storage
     let options = await browser.storage.sync.get() as Options;
 
-    if (!options.baseUrl || options.baseUrl === "") {
+    if (!options.baseUrl || options.baseUrl === "" || options.privacyNotice != PrivacyNoticeOptions.accepted) {
       await browser.runtime.openOptionsPage();
       return;
     }

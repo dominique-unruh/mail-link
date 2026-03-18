@@ -131,6 +131,15 @@
       font-size: 14px;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     }
+
+    .privacy-notice {
+      border: 2px solid darkred;
+      padding: 8px;
+    }
+
+    .privacy-notice-accepted, .privacy-notice-accepted * {
+      color: gray;
+    }
   </style>
 </head>
 <body>
@@ -138,6 +147,22 @@
 
   <form id="optionsForm">
     <div class="option-group">
+      <h2>Privacy notice</h2>
+      <p class="privacy-notice" id="privacy-notice">
+        Links created with this plugin contain possibly confidential information about the email.
+        (Such as email subjects, email addresses, ...)
+        The recipient of the email will learn this information.
+        If the server (configured in <i>base URL</i> below) behaves dishonestly, the server will also learn it.
+        You can configure what information should be included below.
+        (See the <a href="https://github.com/dominique-unruh/mail-link/blob/main/thunderbird-extension/README.md#privacy">README</a> for more information.)
+      </p>
+      <div class="checkbox-item">
+        <input type="checkbox" id="acceptPrivacyNotice" name="acceptPrivacyNotice">
+        <label for="acceptPrivacyNotice">I have understood and accepted the privacy notice.</label>
+      </div>
+    </div>
+
+      <div class="option-group">
       <h2>Base URL</h2>
       <label for="baseUrl">Base URL for the generated link:</label>
       <input type="text" id="baseUrl" name="baseUrl" placeholder="https://...">
