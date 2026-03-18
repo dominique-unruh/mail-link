@@ -1,6 +1,7 @@
 # Overview
 
-Thunderbird extension to produce links to individual emails.
+Thunderbird extension to produce links to individual emails,
+containing enough information to track it down automatically or manually. 
 
 These links can be used, e.g., in your to-do lists, shared planning documents,
 calendar entries, etc.
@@ -41,6 +42,7 @@ Alternatively: run `make xpi` and install the resulting file `copy-message-link-
 
 * The add-on collects no information besides what it includes in the generated link
 * The generated link contains some information about the email but not the email body.
+  (E.g., subject, sender, recipient.)
   You can configure in the options what should be included.
 * Who has the link only gets the message-id and the optionally included data.
   If the person does not have the email yet, they will not be able to get it using the link.
