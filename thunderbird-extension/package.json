@@ -1,6 +1,6 @@
 {
   "name": "copy-message-link",
-  "version": "1.1-snapshot",
+  "version": "1.2",
   "description": "Thunderbird extension, adds a button to copy a link to the current email message",
   "keywords": [
     "thunderbird",
