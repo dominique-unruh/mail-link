@@ -211,6 +211,17 @@
       </div>
     </div>
 
+    <div class="option-group">
+      <h2>Link presentation</h2>
+      <div class="description" style="margin-bottom: 15px;">
+        What should the link look like in rich text documents (instead of a long URL).
+        First working line will be used.
+        (See TODO for details.)
+      </div>
+
+      <textarea id="presentation" name="presentation" placeholder="Email from %FROMOTHER"></textarea>
+    </div>
+
     <div id="errors" class="error-box">
       <strong>There are errors:</strong>
       <ul id="errors-ul"></ul>
@@ -220,6 +231,6 @@
     <div id="status" class="status"></div>
   </form>
   
-  <script src="options.js"></script>
+  <script type="module" src="options.js"></script>
 </body>
 </html>

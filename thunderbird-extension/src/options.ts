@@ -1,19 +1,18 @@
 // Options page script for Copy Message Link extension
 
-let defaultBaseUrl = "https://qis.rwth-aachen.de/people/unruh/tools/mail-link/";
-
 // Load saved options
+import {
+  defaultBaseUrl,
+  defaultOptions,
+  Options,
+  presentationKeywordRegex,
+  presentationKeywords,
+  PrivacyNoticeOptions
+} from "./common.js";
+
 async function loadOptions() {
   try {
-    let options = await browser.storage.sync.get({
-      baseUrl: defaultBaseUrl,
-      whoHasIt: "",
-      includeWhoHasIt: true,
-      includeSubject: true,
-      includeDate: true,
-      includeFrom: true,
-      includeTo: true
-    }) as Options;
+    let options = await browser.storage.sync.get(defaultOptions) as Options;
 
     document.getElementById("baseUrl").addEventListener("input", validateOptions);
     document.getElementById("whoHasIt").addEventListener("input", validateOptions);
@@ -22,6 +21,7 @@ async function loadOptions() {
     document.getElementById("includeDate").addEventListener("change", validateOptions);
     document.getElementById("includeFrom").addEventListener("change", validateOptions);
     document.getElementById("includeTo").addEventListener("change", validateOptions);
+    document.getElementById("presentation").addEventListener("change", validateOptions);
     document.getElementById("acceptPrivacyNotice").addEventListener("change", validateOptions);
 
     // Populate form fields
@@ -32,6 +32,7 @@ async function loadOptions() {
     document.getElementById("includeDate").checked = options.includeDate;
     document.getElementById("includeFrom").checked = options.includeFrom;
     document.getElementById("includeTo").checked = options.includeTo;
+    document.getElementById("presentation").value = options.presentation;
     document.getElementById("acceptPrivacyNotice").checked = options.privacyNotice == PrivacyNoticeOptions.accepted;
 
     validateOptions();
@@ -43,17 +44,31 @@ async function loadOptions() {
 /** Validate current option choices, show errors if needed, do UI updates that depend on the options */
 function validateOptions() {
   let errors = []
+
   document.getElementById("privacy-notice").className =
       document.getElementById("acceptPrivacyNotice").checked ? "privacy-notice-accepted" : "privacy-notice";
+
   if (!document.getElementById("acceptPrivacyNotice").checked)
     errors.push("You need to accept the privacy notice.")
+
   if (document.getElementById("whoHasIt").value === "" &&
       document.getElementById("includeWhoHasIt").checked)
     errors.push("You need to enter your name/email in \"Your data\", or deactivate it in \"Included Information\".")
+
   if (document.getElementById("baseUrl").value === "")
-    errors.push("You need to enter a base URL. E.g., "+defaultBaseUrl)
+    errors.push(`You need to enter a base URL. E.g., ${defaultBaseUrl}`)
   else if (!document.getElementById("baseUrl").value.startsWith("https://"))
-    errors.push("Your base URL must start with https://. E.g., "+defaultBaseUrl)
+    errors.push(`Your base URL must start with https://. E.g., ${defaultBaseUrl}`)
+
+  // Check link-presentation
+  const presentation = document.getElementById("presentation").value
+  for (const match of presentation.matchAll(presentationKeywordRegex)) {
+    const keyword = match[1]
+    if (!presentationKeywords.has(keyword))
+      errors.push(`Unknown keyword %${keyword} in "Link presentation"`)
+  }
+
+  // Show errors
   if (errors.length === 0) {
     document.getElementById("errors").style.display = "none";
     document.getElementById("save-button").disabled = false;
@@ -76,7 +91,7 @@ async function saveOptions(e: SubmitEvent) {
   e.preventDefault();
 
   try {
-    let options = {
+    const options: Options = {
       baseUrl: document.getElementById("baseUrl").value,
       whoHasIt: document.getElementById("whoHasIt").value,
       includeWhoHasIt: document.getElementById("includeWhoHasIt").checked,
@@ -85,10 +100,12 @@ async function saveOptions(e: SubmitEvent) {
       includeFrom: document.getElementById("includeFrom").checked,
       includeTo: document.getElementById("includeTo").checked,
       privacyNotice: document.getElementById("acceptPrivacyNotice").checked ? PrivacyNoticeOptions.accepted : PrivacyNoticeOptions.notAccepted,
+      presentation: document.getElementById("presentation").value,
     };
     
     await browser.storage.sync.set(options);
-    
+    console.log("Saved options", options);
+
     // Show success message
     let status = document.getElementById("status");
     status.textContent = "Options saved successfully!";

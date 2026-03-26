@@ -1,7 +1,7 @@
-// Install the actions of the
 // noinspection ExceptionCaughtLocallyJS
 
-import MessageHeader = browser.messages.MessageHeader;
+import {makeLinkTitle} from './maketitle.js';
+import {defaultOptions, Options, PrivacyNoticeOptions} from "./common.js";
 
 browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
   try {
@@ -9,9 +9,10 @@ browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
     let message = (await browser.messageDisplay.getDisplayedMessage(tab.id!))!;
 
     // Get options from storage
-    let options = await browser.storage.sync.get() as Options;
+    let options = await browser.storage.sync.get(defaultOptions) as Options;
 
     if (!options.baseUrl || options.baseUrl === "" || options.privacyNotice != PrivacyNoticeOptions.accepted) {
+      console.log("Need to show options page", options);
       await browser.runtime.openOptionsPage();
       return;
     }
@@ -22,7 +23,7 @@ browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
     // Construct the URL
     let url = constructUrl(message, options);
 
-    let linkTitle = await makeLinkTitle(message);
+    let linkTitle = await makeLinkTitle(message, options);
 
     await urlToClipboard(url, linkTitle);
 
@@ -119,23 +120,6 @@ async function urlToClipboard(url: string, title: string): Promise<void> {
   await navigator.clipboard.write([clipboardItem]);
 }
 
-async function makeLinkTitle(message: MessageHeader): Promise<string> {
-  try {
-    const parsedSender = (await browser.messengerUtilities.parseMailboxString(message.author))[0];
-    const name = parsedSender.name;
-    const email = parsedSender.email;
-    if (name != null)
-      return `Email from ${name}`;
-    else if (email != null) {
-      const localPart = email.substring(0, email.indexOf('@'));
-      return `Email from "${localPart}"`;
-    } else
-      return "Email";
-  } catch (e) {
-    console.error("makeLinkTitle", message, e);
-    return "Email";
-  }
-}
 
 function formatRFC5322(date: Date) {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
