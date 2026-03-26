@@ -14,7 +14,8 @@
     "messagesRead",
     "storage",
     "clipboardWrite",
-    "notifications"
+    "notifications",
+    "menus"
   ],
   "background": {
     "scripts": ["copy.js"],

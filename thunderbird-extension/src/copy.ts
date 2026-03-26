@@ -1,29 +1,40 @@
 // noinspection ExceptionCaughtLocallyJS
 
-import {makeLinkTitle} from './maketitle.js';
+import {makeLinkTitle, makeLinkTitles, makeSpecificLinkTitle} from './maketitle.js';
 import {defaultOptions, Options, PrivacyNoticeOptions} from "./common.js";
+import Tab = browser.tabs.Tab;
 
-browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
+/** Returns options, or redirects user to options page and returns null */
+async function getOptions() {
+  // Get options from storage
+  let options = await browser.storage.sync.get(defaultOptions) as Options;
+
+  if (!options.baseUrl || options.baseUrl === "" || options.privacyNotice != PrivacyNoticeOptions.accepted) {
+    console.log("Need to show options page", options);
+    await browser.runtime.openOptionsPage();
+    return null;
+  }
+
+  return options;
+}
+
+async function copyMessageLink(tab: Tab, presentation: string|null) {
   try {
     // Get the displayed message
     let message = (await browser.messageDisplay.getDisplayedMessage(tab.id!))!;
 
-    // Get options from storage
-    let options = await browser.storage.sync.get(defaultOptions) as Options;
-
-    if (!options.baseUrl || options.baseUrl === "" || options.privacyNotice != PrivacyNoticeOptions.accepted) {
-      console.log("Need to show options page", options);
-      await browser.runtime.openOptionsPage();
-      return;
-    }
-
     if (!message)
       throw Error("No message displayed");
+
+    const options = await getOptions();
+    if (options == null) return;
 
     // Construct the URL
     let url = constructUrl(message, options);
 
-    let linkTitle = await makeLinkTitle(message, options);
+    const linkTitle =
+        (presentation == null) ? await makeLinkTitle(message, options) :
+            (await makeSpecificLinkTitle(message, presentation))[1];
 
     await urlToClipboard(url, linkTitle);
 
@@ -32,7 +43,10 @@ browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
       type: "basic",
       iconUrl: "icon.svg",
       title: "Copy Message Link",
-      message: "Message link copied to clipboard!"
+      message:
+          (presentation == null) ?
+            "Message link copied to clipboard!\n(Right click button for more options.)" :
+              "Message link copied to clipboard!",
     });
   } catch (error) {
     console.error("Error copying message link:", error);
@@ -43,7 +57,59 @@ browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
       message: "Error: " + (error as Error).message
     });
   }
+}
+
+browser.messageDisplayAction.onClicked.addListener(async (tab, _info) => {
+  await copyMessageLink(tab, null);
 });
+
+browser.menus.onShown.addListener(async (info, tab) => {
+  console.log("onShown", info);
+
+  let message = (await browser.messageDisplay.getDisplayedMessage(tab.id!))!;
+
+  const options = await getOptions();
+  if (options == null) return;
+
+  for (const id of info.menuIds)
+    if (String(id).startsWith("copy-message-link-"))
+      browser.menus.remove(id);
+
+/*  browser.menus.create({
+    id: "copy-message-link-copy-as",
+    enabled: false,
+    title: "Copy as:"
+  })*/
+
+  let someValid = false;
+  for await (const [valid, config, title] of makeLinkTitles(message, options)) {
+    browser.menus.create({
+      id: `copy-message-link-title-${config}`,
+      title: `📋 ${title}`,
+      enabled: valid,
+    })
+    if (valid) someValid = true;
+  }
+
+  if (!someValid)
+    browser.menus.create({
+      id: `copy-message-link-title-Email`,
+      title: `📋 Email`,
+    })
+
+  browser.menus.refresh();
+})
+
+browser.menus.onClicked.addListener(async (info, tab) => {
+  if (tab?.id == null) return;
+  const menuItemId = String(info.menuItemId);
+  if (menuItemId.startsWith("copy-message-link-title-")) {
+    const message = await browser.messageDisplay.getDisplayedMessage(tab.id);
+    if (!message) return;
+    const presentation = menuItemId.substring("copy-message-link-title-".length);
+    copyMessageLink(tab, presentation);
+  }
+})
 
 /** Like encodeURIComponent but encodes additional characters that make the URI more suitable for automatic recognition inside plain text */
 function myEncodeURIComponent(uriComponent: string) {

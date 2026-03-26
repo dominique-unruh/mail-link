@@ -4,3 +4,6 @@ default:
 
 webapp-deploy-push:
 	make -C webapp deploy-push
+
+thunderbird-install-xpi:
+	make -C thunderbird-extension install-xpi
