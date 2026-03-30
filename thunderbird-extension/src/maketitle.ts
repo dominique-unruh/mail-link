@@ -41,11 +41,13 @@ export async function makeSpecificLinkTitle(message: MessageHeader, presentation
 }
 
 export async function makeLinkTitle(message: MessageHeader, options: Options): Promise<string> {
-    for await (const [valid, title] of makeLinkTitles(message, options))
+    for await (const [valid, template, title] of makeLinkTitles(message, options))
         if (valid) return title;
     return "Email";
 }
 
+/**
+ * @return (valid, presentationTemplate, title) */
 export async function* makeLinkTitles(message: MessageHeader, options: Options): AsyncGenerator<[boolean,string,string]> {
     const presentations = options.presentation.split("\n")
 
