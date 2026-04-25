@@ -75,10 +75,12 @@ browser.menus.onShown.addListener(async (info, tab) => {
     if (String(id).startsWith("copy-message-link-"))
       browser.menus.remove(id);
 
-/*  browser.menus.create({
+/*
+  browser.menus.create({
     id: "copy-message-link-copy-as",
-    enabled: false,
-    title: "Copy as:"
+    enabled: true,
+    title: "Copy as:",
+    contexts: ["message_display_action"],
   })*/
 
   let someValid = false;
@@ -87,6 +89,7 @@ browser.menus.onShown.addListener(async (info, tab) => {
       id: `copy-message-link-title-${config}`,
       title: `📋 ${title}`,
       enabled: valid,
+      contexts: ["message_display_action", "message_list"],
     })
     if (valid) someValid = true;
   }
@@ -95,6 +98,7 @@ browser.menus.onShown.addListener(async (info, tab) => {
     browser.menus.create({
       id: `copy-message-link-title-Email`,
       title: `📋 Email`,
+      contexts: ["message_display_action", "message_list"],
     })
 
   browser.menus.refresh();

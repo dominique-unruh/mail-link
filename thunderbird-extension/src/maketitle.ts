@@ -26,8 +26,7 @@ export async function makeSpecificLinkTitle(message: MessageHeader, presentation
 
     function useOrSkip(str: string | null | undefined): string { if (str==null) { valid = false; return "⍰"; } else return str; }
     const result = presentation.replace(presentationKeywordRegex, (_, keyword: string) => {
-        if (!presentationKeywords.has(keyword))
-            throw Error(`Unknown keyword ${keyword}`);
+        if (!presentationKeywords.has(keyword)) throw Error(`Unknown keyword ${keyword}`);
         if (keyword == '%') return '%';
         if (keyword == ',') return '';
         if (keyword == 'from') return useOrSkip(senderName);
