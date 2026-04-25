@@ -46,7 +46,7 @@ async function copyMessageLink(tab: Tab, presentation: string|null) {
       message:
           (presentation == null) ?
             `Message link '${linkTitle}' copied to clipboard!\n(Right click 'Copy Link' button for more options.)` :
-              `Message link '${linkTitle}" copied to clipboard!`,
+              `Message link '${linkTitle}' copied to clipboard!`,
     });
   } catch (error) {
     console.error("Error copying message link:", error);
