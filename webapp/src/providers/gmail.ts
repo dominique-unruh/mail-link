@@ -49,7 +49,7 @@ export class GmailProvider extends Provider {
             this.linkElement.textContent = "[No message ID]";
             return;
         }
-        this.link = `https://mail.google.com/mail/u/${this.accountNumber.value}#search/in:anywhere+rfc822msgid:\"${encodeURI(this.data.mid)}\"`
+        this.link = `https://mail.google.com/mail/u/${this.accountNumber.value}#search/in:anywhere+rfc822msgid:\"${encodeURIComponent(this.data.mid)}\"`
         this.linkElement.textContent = this.link.substring(0, 40) + "…";
         this.linkElement.href = this.link;
     }
