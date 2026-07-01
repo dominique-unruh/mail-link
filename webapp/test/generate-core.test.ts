@@ -65,6 +65,20 @@ To: a@host, b@host`), base);
         expect(url).toContain('&to=a%40host%2C%20b%40host');
     });
 
+    it('adds a whohasit field when a name is given', async () => {
+        const url = await emailToMailLink(rawEmail(`
+Message-ID: <abc@host>`), base, 'Jane Doe');
+
+        expect(url).toContain('&whohasit=Jane%20Doe');
+    });
+
+    it('omits whohasit when the name is empty or whitespace', async () => {
+        const url = await emailToMailLink(rawEmail(`
+Message-ID: <abc@host>`), base, '   ');
+
+        expect(url).not.toContain('whohasit');
+    });
+
     it('returns null when there is no Message-ID', async () => {
         const url = await emailToMailLink(rawEmail(`
 Subject: No id here

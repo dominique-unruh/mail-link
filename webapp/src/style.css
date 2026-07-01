@@ -106,8 +106,51 @@ sl-details::part(header) {
   font-weight: bold;
 }
 
+/* "Your name:" label and its input share one line. */
+#whohasit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+#whohasit-row label {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+#whohasit-input {
+  flex: 1;
+  --sl-input-placeholder-color: #999;
+}
+
+/* Make the field read as a visible input: drop-box background, underlined only. */
+#whohasit-input::part(base) {
+  background-color: #f5f6ff;
+  border: none;
+  border-bottom: 1px solid #b3b9e6;
+}
+
+#whohasit-divider {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 1rem 0;
+}
+
+/* Present the generated link in a rounded box, matching a.button. */
+#result {
+  background: #667eea;
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+}
+
 #result label {
   font-weight: bold;
+}
+
+#result-link {
+  color: white;
 }
 
 #result-row {

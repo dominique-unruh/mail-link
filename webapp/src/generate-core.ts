@@ -9,8 +9,9 @@ export function formatAddress(addr: {name?: string; address?: string}): string {
 }
 
 /** Parses a raw email (RFC 822 text) and builds a mail-link with `baseUrl` as its base.
+ * `whohasit`, if non-empty, names who holds the email (populates the `whohasit` field).
  * Returns `null` if the email has no Message-ID (in which case no link can be generated). */
-export async function emailToMailLink(raw: string, baseUrl: string): Promise<string | null> {
+export async function emailToMailLink(raw: string, baseUrl: string, whohasit?: string): Promise<string | null> {
     const email = await PostalMime.parse(raw);
 
     const messageId = email.messageId?.trim();
@@ -30,6 +31,8 @@ export async function emailToMailLink(raw: string, baseUrl: string): Promise<str
         fields.from = formatAddress(email.from);
     if (email.to && email.to.length > 0)
         fields.to = email.to.map(formatAddress).join(', ');
+    if (whohasit && whohasit.trim() !== '')
+        fields.whohasit = whohasit.trim();
 
     return buildMailLink(baseUrl, fields);
 }

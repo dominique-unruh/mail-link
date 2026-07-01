@@ -1,15 +1,21 @@
 import './style.css';
 import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
+import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/copy-button/copy-button.js';
 import {emailToMailLink} from './generate-core.ts';
-import type {SlCopyButton, SlTextarea} from '@shoelace-style/shoelace';
+import {options, saveOptions} from './options.ts';
+import type {SlCopyButton, SlInput, SlTextarea} from '@shoelace-style/shoelace';
 
 const input = document.getElementById('headers-input') as unknown as SlTextarea;
+const whoHasItInput = document.getElementById('whohasit-input') as unknown as SlInput;
 const resultDiv = document.getElementById('result') as HTMLDivElement;
 const resultLink = document.getElementById('result-link') as HTMLAnchorElement;
 const resultCopy = document.getElementById('result-copy') as unknown as SlCopyButton;
 const resultError = document.getElementById('result-error') as HTMLParagraphElement;
 const thunderbirdHint = document.getElementById('thunderbird-hint') as HTMLParagraphElement;
+
+// Restore the persisted name.
+whoHasItInput.value = options.whoHasIt ?? '';
 
 function showError(message: string): void {
     resultDiv.style.display = 'none';
@@ -35,7 +41,7 @@ async function regenerate(): Promise<void> {
     try {
         // Base = the resolve page: the current directory, without generate.html/query/fragment.
         const base = new URL('.', window.location.href).href;
-        url = await emailToMailLink(raw, base);
+        url = await emailToMailLink(raw, base, whoHasItInput.value);
     } catch (error) {
         showError('Could not generate a link: ' + (error as Error).message);
         return;
@@ -55,6 +61,12 @@ async function regenerate(): Promise<void> {
 }
 
 input.addEventListener('sl-input', regenerate);
+
+whoHasItInput.addEventListener('sl-input', () => {
+    options.whoHasIt = whoHasItInput.value;
+    saveOptions();
+    void regenerate();
+});
 
 // Drag-and-drop a file (e.g. an .eml) onto the drop zone.
 const dropZone = document.getElementById('drop-zone') as HTMLDivElement;
