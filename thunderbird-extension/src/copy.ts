@@ -3,6 +3,7 @@
 import {makeLinkTitle, makeLinkTitles, makeSpecificLinkTitle} from './maketitle.js';
 import {defaultOptions, Options, PrivacyNoticeOptions} from "./common.js";
 import Tab = browser.tabs.Tab;
+import {buildMailLink, MailLinkFields} from "./shared/maillink.js";
 
 /** Returns options, or redirects user to options page and returns null */
 async function getOptions() {
@@ -115,59 +116,29 @@ browser.menus.onClicked.addListener(async (info, tab) => {
   }
 })
 
-/** Like encodeURIComponent but encodes additional characters that make the URI more suitable for automatic recognition inside plain text */
-function myEncodeURIComponent(uriComponent: string) {
-  return encodeURIComponent(uriComponent)
-      .replace(/'/g, (char) => '%' + char.charCodeAt(0).toString(16).toUpperCase());
-}
-
-/** Optionally quotes the last character of the URI to make sure the URI is more suitable for automatic recognition inside plain text.
- * E.g., doesn't end in a `.`. */
-function fixupURL(url: string) {
-  // The pattern guarantees that we don't escape anything alphanumeric (which first isn't worth quoting and second might be part of an already escaped character)
-  // nor any symbols that are part of not to be quoted URL parts (such as path separator /, query-string syntax elements &,=, etc.)
-  return url.replace(/[^a-zA-Z0-9/&#=]$/, (char) => '%' + char.charCodeAt(0).toString(16).toUpperCase());
-}
-
-/** Construct the URL linking to email `message`.
+/** Construct the URL linking to email `message`, honoring the include-flags in `options`.
  */
 function constructUrl(message: browser.messages.MessageHeader, options: Options): string {
-  let url = options.baseUrl;
-  
-  // Get message ID
-  let msgId = message.headerMessageId;
-  if (!msgId || msgId === "")
-    throw Error("Could not determine message id")
-  
-  // Start with message ID
-  url += "#" + myEncodeURIComponent(msgId);
-  
-  // Add optional fields
-  if (options.includeSubject && message.subject) {
-    url += "&subject=" + myEncodeURIComponent(message.subject);
-  }
-  
-  if (options.includeDate && message.date) {
-    let dateStr = formatRFC5322(message.date as Date);
-    url += "&date=" + myEncodeURIComponent(dateStr);
-  }
-  
-  if (options.includeFrom && message.author) {
-    url += "&from=" + myEncodeURIComponent(message.author);
-  }
-  
-  if (options.includeTo && message.recipients && message.recipients.length > 0) {
-    let toList = message.recipients.join(", ");
-    url += "&to=" + myEncodeURIComponent(toList);
-  }
-  
-  if (options.whoHasIt) {
-    url += "&whohasit=" + myEncodeURIComponent(options.whoHasIt);
-  }
+  const fields: MailLinkFields = {
+    messageId: message.headerMessageId,
+  };
 
-  url = fixupURL(url);
+  if (options.includeSubject && message.subject)
+    fields.subject = message.subject;
 
-  return url;
+  if (options.includeDate && message.date)
+    fields.date = formatRFC5322(message.date as Date);
+
+  if (options.includeFrom && message.author)
+    fields.from = message.author;
+
+  if (options.includeTo && message.recipients && message.recipients.length > 0)
+    fields.to = message.recipients.join(", ");
+
+  if (options.whoHasIt)
+    fields.whohasit = options.whoHasIt;
+
+  return buildMailLink(options.baseUrl, fields);
 }
 
 function escapeHtml(text: string) {

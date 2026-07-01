@@ -13,7 +13,7 @@ $(XPI) : $(SOURCES) Makefile
 	cd dist && zip -r ../$@ .
 
 clean :
-	rm -f copy-message-link-*.xpi dist/
+	rm -rf copy-message-link-*.xpi dist/
 
 # For Linux. Use with care!
 install-xpi: $(XPI)
