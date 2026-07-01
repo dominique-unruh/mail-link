@@ -19,6 +19,7 @@
   </p>
 
   <div id="drop-zone">
+    <button id="clear-input" type="button" title="Clear" aria-label="Clear">&times;</button>
     <sl-textarea
       id="headers-input"
       label="Email / headers"
@@ -34,8 +35,11 @@
     <sl-input
       id="whohasit-input"
       placeholder="Who has the email?"
+      clearable
       title="Optional. This name will be added to the link. Then the recipient of the link will know whom to contact to find the email."
-    ></sl-input>
+    >
+      <span slot="clear-icon">&times;</span>
+    </sl-input>
   </div>
   <hr id="whohasit-divider" />
 

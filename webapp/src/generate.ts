@@ -62,6 +62,13 @@ async function regenerate(): Promise<void> {
 
 input.addEventListener('sl-input', regenerate);
 
+// Clear button: empty the paste box and reset the output.
+const clearButton = document.getElementById('clear-input') as HTMLButtonElement;
+clearButton.addEventListener('click', () => {
+    input.value = '';
+    void regenerate();
+});
+
 whoHasItInput.addEventListener('sl-input', () => {
     options.whoHasIt = whoHasItInput.value;
     saveOptions();

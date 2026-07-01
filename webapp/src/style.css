@@ -89,11 +89,35 @@ sl-details::part(header) {
 }
 
 #drop-zone {
+  position: relative;
   border: 2px dashed #b3b9e6;
   border-radius: 8px;
   padding: 0.75rem;
   background: #f5f6ff;
   transition: border-color 0.2s, background 0.2s;
+}
+
+/* Clear-content button, right-aligned on the "Email / headers" label line. */
+#clear-input {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 1;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #667eea;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+#clear-input:hover {
+  background: #e8ebff;
 }
 
 /* Highlight the drop zone while a file is being dragged over it. */
@@ -122,6 +146,14 @@ sl-details::part(header) {
 #whohasit-input {
   flex: 1;
   --sl-input-placeholder-color: #999;
+}
+
+/* Style the clearable's clear button like the drop-box × button. */
+#whohasit-input::part(clear-button) {
+  color: #667eea;
+  font-size: 1.1rem;
+  background: none;
+  padding-right: 0.5rem;
 }
 
 /* Make the field read as a visible input: drop-box background, underlined only. */
