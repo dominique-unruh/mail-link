@@ -88,6 +88,70 @@ sl-details::part(header) {
   border-radius: 8px;
 }
 
+#drop-zone {
+  border: 2px dashed #b3b9e6;
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: #f5f6ff;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+/* Highlight the drop zone while a file is being dragged over it. */
+#drop-zone.drag-over {
+  border-color: #667eea;
+  background: #e8ebff;
+}
+
+#headers-input::part(form-control-label) {
+  font-weight: bold;
+}
+
+#result label {
+  font-weight: bold;
+}
+
+#result-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Truncate the (potentially long) link to one line so it stays next to the
+   copy button. min-width: 0 lets the flex item shrink below its content size. */
+#result-link {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#drop-hint {
+  margin: 0.5rem 0 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #667eea;
+}
+
+a.button {
+  display: inline-block;
+  padding: 0.3rem 0.7rem;
+  background: #667eea;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+a.button.unobtrusive {
+  background: rgb(102 126 234 / 0.56);
+}
+
+a.button:hover {
+  background: #5568d3;
+}
+
 .error {
   color: red;
 }

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generate a mail-link</title>
+</head>
+<body>
+<div id="app">
+  <h1>Generate a mail-link</h1>
+
+  <p>
+    Paste an email (or just its headers) below, or drag-and-drop an email onto the box (from your mail program,
+    or <code>.eml</code> file).
+  </p>
+  <p>
+    A mail-link pointing at that email is generated below.
+    (No data is sent to our server!)
+  </p>
+
+  <div id="drop-zone">
+    <sl-textarea
+      id="headers-input"
+      label="Email / headers"
+      placeholder="Paste the email here, or drop an email…"
+      rows="5"
+      resize="none"
+    ></sl-textarea>
+    <p id="drop-hint">Drop an email here</p>
+  </div>
+
+  <p id="thunderbird-hint">
+    Using Thunderbird? The
+    <a href="https://addons.thunderbird.net/en-US/thunderbird/addon/copy-message-link/">Copy Message Link add-on</a>
+    creates links from your emails with a single click.
+  </p>
+
+  <div id="result" style="display: none; margin-top: 2rem;">
+    <label for="result-link">Generated mail-link:</label>
+    <div id="result-row">
+      <a id="result-link" href="#"></a>
+      <sl-copy-button id="result-copy"></sl-copy-button>
+    </div>
+  </div>
+
+  <p id="result-error" class="error" style="display: none; margin-top: 2rem;"></p>
+</div>
+<script type="module" src="src/generate.ts"></script>
+</body>
+</html>

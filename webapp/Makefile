@@ -3,6 +3,10 @@ default:
 	echo "Specify a make target"
 	false
 
+# Run the webapp test suite
+tests:
+	npm test
+
 # Works only for Dominique Unruh
 deploy:
 	npm run build
