@@ -1,7 +1,10 @@
 // Bundles src/bookmarklet.ts into a single self-contained IIFE (keeping the
 // @@@BASE_URL@@@ / @@@WHOHASIT@@@ placeholders) and emits:
-//   dist/bookmarklet.min.js  - default-configured bookmarklet (default base URL,
-//                              no name), directly usable
+//   dist/bookmarklet-template.min.js - the raw minified bundle with the
+//                              placeholders still in place, for injecting
+//                              configured values into (see inject.mjs)
+//   dist/bookmarklet-demo.min.js - a ready-to-use bookmarklet with the default
+//                              base URL and an empty name already injected
 //   dist/test-install.html   - a page with Base URL / Name fields that build a
 //                              configured bookmarklet live (for install & testing)
 //
@@ -35,7 +38,7 @@ for (const placeholder of ['@@@BASE_URL@@@', '@@@WHOHASIT@@@']) {
     }
 }
 
-// Default-configured bookmarklet (base URL default, no name).
+// Demo: default-configured bookmarklet (base URL default, empty name).
 const configured = 'javascript:' + encodeURIComponent(inject(template, DEFAULT_BASE_URL, ''));
 const size = configured.length;
 
@@ -47,7 +50,10 @@ if (size > MAX_URL_LENGTH) {
 }
 
 mkdirSync('dist', {recursive: true});
-writeFileSync('dist/bookmarklet.min.js', configured + '\n');
+// Raw template (unencoded JS, placeholders intact) so inject() can operate on it.
+// No trailing newline: these files are consumed verbatim.
+writeFileSync('dist/bookmarklet-template.min.js', template);
+writeFileSync('dist/bookmarklet-demo.min.js', configured);
 
 // For the installer page, inline the inject() source (minus its `export`) and the
 // raw template, then wire the two input fields to rebuild the URL live.
@@ -62,7 +68,7 @@ const html = `<!doctype html>
   body { font-family: sans-serif; max-width: 44em; margin: 2em auto; padding: 0 1em; line-height: 1.5; }
   a.bm { display: inline-block; font-size: 1.3em; padding: .4em .8em; border: 1px solid #888;
          border-radius: .4em; text-decoration: none; }
-  input, textarea { font: inherit; }
+  input { font: inherit; }
   label { display: block; margin: .8em 0; }
   code { background: #f0f0f0; padding: 0 .2em; }
 </style>
@@ -76,11 +82,6 @@ const html = `<!doctype html>
 
 <p><a class="bm" id="bm" href="#">📧 Mail-Link</a></p>
 <p id="size" style="color:#888"></p>
-<p>(Clicking it here does nothing — it only works inside a supported webmail app.)</p>
-
-<h2>Can&rsquo;t drag it? (e.g. Firefox)</h2>
-<p>Right-click the toolbar &rarr; <em>Add Bookmark&hellip;</em> and paste this into the URL field:</p>
-<textarea id="out" rows="4" cols="64" readonly></textarea>
 
 <h2>How to use</h2>
 <ol>
@@ -96,13 +97,11 @@ const FIREFOX_LIMIT = 65536;
 const baseEl = document.getElementById('base');
 const nameEl = document.getElementById('name');
 const bmEl = document.getElementById('bm');
-const outEl = document.getElementById('out');
 const sizeEl = document.getElementById('size');
 function update() {
   const code = inject(TEMPLATE, baseEl.value.trim(), nameEl.value.trim());
   const url = 'javascript:' + encodeURIComponent(code);
   bmEl.href = url;
-  outEl.value = url;
   const over = url.length > FIREFOX_LIMIT;
   sizeEl.textContent = 'Bookmarklet length: ' + url.length + ' characters'
     + (over ? ' — over the Firefox ' + FIREFOX_LIMIT + ' limit!' : ' (Firefox limit ' + FIREFOX_LIMIT + ').');
@@ -115,4 +114,4 @@ update();
 `;
 writeFileSync('dist/test-install.html', html);
 
-console.log('Wrote dist/bookmarklet.min.js and dist/test-install.html');
+console.log('Wrote dist/bookmarklet-template.min.js, dist/bookmarklet-demo.min.js and dist/test-install.html');

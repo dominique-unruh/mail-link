@@ -28,7 +28,7 @@ this substitution live from its two input fields.
 
 ```sh
 make install       # npm install
-make build         # -> dist/bookmarklet.min.js and dist/test-install.html
+make build         # -> dist/bookmarklet-{template,demo}.min.js and dist/test-install.html
 make test          # unit tests (headers, message, inject)
 make typecheck
 make clean
@@ -36,10 +36,12 @@ make clean
 
 (Equivalent `npm run build` / `npm test` / `npm run typecheck` scripts also
 exist.) Everything — including postal-mime-free header parsing — is bundled into
-a single `javascript:` URL. `dist/bookmarklet.min.js` is a ready-to-use version
-configured with the default base URL and no name. The build fails if the URL
-exceeds 63 KiB, because Firefox silently ignores bookmark URLs longer than
-65 536 characters.
+a single `javascript:` URL. The build emits `dist/bookmarklet-template.min.js`
+(raw minified bundle with the `@@@…@@@` placeholders intact, for injecting
+configured values into) and `dist/bookmarklet-demo.min.js` (a ready-to-use
+bookmarklet with the default base URL and an empty name already injected). The
+build fails if the demo URL exceeds 63 KiB, because Firefox silently ignores
+bookmark URLs longer than 65 536 characters.
 
 ## Install (for testing)
 
