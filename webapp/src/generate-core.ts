@@ -25,8 +25,12 @@ export async function emailToMailLink(raw: string, baseUrl: string, whohasit?: s
 
     if (email.subject)
         fields.subject = email.subject;
-    if (email.date)
-        fields.date = email.date;
+    // The mail-link format requires an RFC 5322 timestamp. postal-mime's
+    // `email.date` is normalised to ISO 8601, so use the original Date header
+    // (already RFC 5322) verbatim instead.
+    const dateHeader = email.headers.find(h => h.key === 'date')?.value;
+    if (dateHeader)
+        fields.date = dateHeader;
     if (email.from)
         fields.from = formatAddress(email.from);
     if (email.to && email.to.length > 0)

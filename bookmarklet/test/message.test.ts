@@ -17,7 +17,7 @@ describe('messageToFields', () => {
         expect(f).not.toBeNull();
         expect(f!.messageId).toBe('abc.123@example.com');
         expect(f!.subject).toBe('Grüße');
-        expect(f!.date).toBe('2026-02-06T17:45:30.000Z');
+        expect(f!.date).toBe('Fri, 06 Feb 2026 17:45:30 +0000');
         expect(f!.from).toBe('Sender Name <sender@example.com>');
         expect(f!.to).toBe('a@example.com, b@example.com');
     });
@@ -26,8 +26,8 @@ describe('messageToFields', () => {
         expect(messageToFields('Subject: x\r\n\r\nbody')).toBeNull();
     });
 
-    it('keeps an unparseable Date verbatim', () => {
-        const f = messageToFields('Message-ID: <1@x>\r\nDate: not a date\r\n\r\n');
-        expect(f!.date).toBe('not a date');
+    it('passes the Date header through verbatim (RFC 5322, as in the source)', () => {
+        const f = messageToFields('Message-ID: <1@x>\r\nDate: Mon, 1 Jan 2001 00:00:00 -0500\r\n\r\n');
+        expect(f!.date).toBe('Mon, 1 Jan 2001 00:00:00 -0500');
     });
 });

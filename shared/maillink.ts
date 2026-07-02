@@ -22,7 +22,7 @@ export interface MailLinkFields {
     /** Message-ID without surrounding `<>`. */
     messageId: string;
     subject?: string;
-    /** Date as a string (RFC 5322 timestamp or ISO 8601); passed through verbatim. */
+    /** Date as an RFC 5322 (Section 3.3) timestamp; passed through verbatim. */
     date?: string;
     from?: string;
     to?: string;

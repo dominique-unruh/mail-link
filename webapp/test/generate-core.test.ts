@@ -32,7 +32,7 @@ To: Recipient <r@host>`), base);
             base +
             '#abc%40host' +
             '&subject=Hello%20world' +
-            '&date=2026-02-06T17%3A45%3A30.000Z' +
+            '&date=Fri%2C%2006%20Feb%202026%2017%3A45%3A30%20%2B0000' +
             '&from=Sender%20Name%20%3Cs%40host%3E' +
             '&to=Recipient%20%3Cr%40host%3E',
         );

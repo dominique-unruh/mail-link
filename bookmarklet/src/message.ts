@@ -20,11 +20,10 @@ export function messageToFields(raw: string): MailLinkFields | null {
         fields.subject = decodeEncodedWords(subject);
 
     const date = firstHeader(headers, 'date');
-    if (date) {
-        // Normalise to ISO 8601 when parseable (matching the webapp), else verbatim.
-        const parsed = new Date(date);
-        fields.date = isNaN(parsed.getTime()) ? date : parsed.toISOString();
-    }
+    if (date)
+        // The raw Date header is already an RFC 5322 timestamp, which is exactly
+        // what the mail-link format requires, so pass it through verbatim.
+        fields.date = date;
 
     const from = firstHeader(headers, 'from');
     if (from)
