@@ -28,7 +28,7 @@ this substitution live from its two input fields.
 
 ```sh
 make install       # npm install
-make build         # -> dist/bookmarklet.min.js and dist/install.html
+make build         # -> dist/bookmarklet.min.js and dist/test-install.html
 make test          # unit tests (headers, message, inject)
 make typecheck
 make clean
@@ -43,7 +43,7 @@ exceeds 63 KiB, because Firefox silently ignores bookmark URLs longer than
 
 ## Install (for testing)
 
-Open `dist/install.html`, set the **Base URL** and **name** fields, then drag the
+Open `dist/test-install.html`, set the **Base URL** and **name** fields, then drag the
 **📧 Mail-Link** button onto your bookmarks toolbar (or, in Firefox, copy the URL
 from the box into *Add Bookmark…*). Then open an email in a supported webmail app
 and click it.

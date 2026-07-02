@@ -2,7 +2,7 @@
 // @@@BASE_URL@@@ / @@@WHOHASIT@@@ placeholders) and emits:
 //   dist/bookmarklet.min.js  - default-configured bookmarklet (default base URL,
 //                              no name), directly usable
-//   dist/install.html        - a page with Base URL / Name fields that build a
+//   dist/test-install.html   - a page with Base URL / Name fields that build a
 //                              configured bookmarklet live (for install & testing)
 //
 // Firefox silently ignores bookmark URLs longer than 65536 chars, so we fail the
@@ -113,6 +113,6 @@ nameEl.addEventListener('input', update);
 update();
 </script>
 `;
-writeFileSync('dist/install.html', html);
+writeFileSync('dist/test-install.html', html);
 
-console.log('Wrote dist/bookmarklet.min.js and dist/install.html');
+console.log('Wrote dist/bookmarklet.min.js and dist/test-install.html');

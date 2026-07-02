@@ -12,7 +12,7 @@
 
 import {findApp} from './apps.ts';
 import {messageToFields} from './message.ts';
-import {showLink} from './popup.ts';
+import {chooseMessage, showLink} from './popup.ts';
 import {log} from './log.ts';
 import {buildMailLink} from '../../shared/maillink.ts';
 
@@ -30,7 +30,27 @@ async function run(): Promise<void> {
     }
     log('detected app:', app.name);
 
-    const raw = await app.extract(window.location);
+    const choices = app.listMessages(window.location);
+    log('messages found:', choices.length);
+    if (choices.length === 0) {
+        alert('No open message found. Open the email you want to link, then click the bookmarklet.');
+        return;
+    }
+
+    let id: string;
+    if (choices.length === 1) {
+        id = choices[0].id;
+    } else {
+        const chosen = await chooseMessage(choices);
+        if (chosen == null) {
+            log('selection cancelled');
+            return;
+        }
+        id = chosen;
+    }
+    log('selected message id:', id);
+
+    const raw = await app.extract(window.location, id);
     log('fetched source:', raw.length, 'bytes');
     log('source (whole):\n' + raw);
 

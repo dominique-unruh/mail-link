@@ -1,18 +1,30 @@
 // Registry of supported webmail apps. Each app knows how to recognise its own
-// pages and how to extract the raw source of the currently open message.
+// pages, list the messages present, and extract the raw source of a chosen one.
 
 import {gmailApp} from './gmail.ts';
+
+/** A message the user can pick from a conversation. */
+export interface MessageChoice {
+    /** Text shown to the user in the chooser. */
+    label: string;
+    /** App-specific identifier the extractor uses to fetch this message. */
+    id: string;
+    /** Emphasise this entry (e.g. a currently-open message). Best-effort. */
+    emphasize: boolean;
+}
 
 export interface EmailApp {
     /** Human-readable name, e.g. "GMail". */
     name: string;
     /** Whether this app handles the given location. */
     matches(location: Location): boolean;
+    /** List the messages currently available on the page (may be empty). */
+    listMessages(location: Location): MessageChoice[];
     /**
      * Extract the raw RFC 822 source (at least the full header block) of the
-     * currently open message. Rejects if it cannot be obtained.
+     * message identified by `id` (a value from one of this app's MessageChoices).
      */
-    extract(location: Location): Promise<string>;
+    extract(location: Location, id: string): Promise<string>;
 }
 
 /** All supported apps, tried in order. */
