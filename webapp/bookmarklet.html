@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mail-link bookmarklet</title>
+</head>
+<body>
+<div id="app">
+  <h1>Mail-link bookmarklet</h1>
+
+  <p>
+    Install this bookmarklet to create a mail-link for the email you are currently
+    viewing in your webmail — with a single click, no copy-pasting.
+  </p>
+  <p>
+    Supported webmail: <strong>GMail</strong> (web). More may be added later.
+  </p>
+
+  <div id="bm-config">
+    <label for="baseurl-input">Resolve URL:</label>
+    <sl-input id="baseurl-input"
+              title="The page that resolves mail-links (this web-app). Usually leave unchanged."></sl-input>
+
+    <label for="whohasit-input">Your name:</label>
+    <sl-input id="whohasit-input" clearable placeholder="Who has the email? (optional)"
+              title="Optional. Added to every link so recipients know whom to contact.">
+      <span slot="clear-icon">&times;</span>
+    </sl-input>
+  </div>
+
+  <p style="margin-top: 1.5rem;"><strong>Drag this button onto your bookmarks toolbar:</strong></p>
+  <p><a class="button" id="bm-link" href="#">📧 Mail-Link</a></p>
+  <p id="bm-size"></p>
+
+  <h2>How to use</h2>
+  <ol>
+    <li>Open an email in GMail (web).</li>
+    <li>Click the <em>Mail-Link</em> bookmark.</li>
+    <li>If several messages are open, pick one; then copy the link from the dialog.</li>
+  </ol>
+
+  <p style="font-size: 0.85rem; color: #999;">
+    Nothing is sent to any server; the link is built entirely in your browser.
+  </p>
+</div>
+<script type="module" src="src/bookmarklet.ts"></script>
+</body>
+</html>
