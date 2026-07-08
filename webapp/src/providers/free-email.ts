@@ -1,5 +1,72 @@
+import html from './free-email.html?raw';
+import {Provider} from "../provider.ts";
+import type {HTMLLike, ParsedFragment} from "../types.ts";
+import {strippedSubject} from "../utils.ts";
 
+export class FreeEmailProvider extends Provider {
+    private linkElement!: HTMLAnchorElement;
+    private autoActionCheckbox!: HTMLInputElement;
+    private data: ParsedFragment | null = null;
+    private link: string | undefined;
 
+    constructor() {
+        super({'id': 'free-email', 'title': 'FreeEmail (Android)', 'html': html});
+    }
+
+    protected init(): void | Promise<void> {
+        this.linkElement = document.getElementById("free-email-link") as HTMLAnchorElement;
+        this.autoActionCheckbox = document.getElementById("free-email-autoaction") as HTMLInputElement;
+
+        this.autoActionCheckbox.addEventListener("change", () => {
+            if (this.autoActionCheckbox.checked) this.takeAutoAction();
+            else this.releaseAutoAction();
+        })
+    }
+
+    dataChanged(data: ParsedFragment | null): void | Promise<void> {
+        this.data = data;
+        this.updateLink();
+    }
+
+    updateLink() {
+        if (!this.data) {
+            this.link = undefined;
+            this.linkElement.removeAttribute("href");
+            this.linkElement.textContent = "[No message data]";
+            return;
+        }
+
+        const params = this.data.params;
+        const subject = params["subject"] ? strippedSubject(params["subject"])[0] : null;
+        const from = params["from"] || null;
+        // The `to` param holds all recipients joined with ", " (see generate-core.ts);
+        // freeEmailSearchURI only accepts a single recipient, so use the first one.
+        const to = params["to"] ? params["to"].split(", ")[0] : null;
+
+        this.link = freeEmailSearchURI(subject, from, to);
+        this.linkElement.textContent = this.link.substring(0, 40) + "…";
+        this.linkElement.href = this.link;
+    }
+
+    lostAutoAction() {
+        this.autoActionCheckbox.checked = false;
+    }
+
+    gotAutoAction() {
+        this.autoActionCheckbox.checked = true;
+    }
+
+    automaticActionText(): HTMLLike {
+        return 'Directly search the email in the FreeEmail app.';
+    }
+
+    doAutoAction(): void | Promise<void> {
+        if (this.link != null)
+            window.open(this.link, '_blank');
+        else
+            console.error("doAutoAction called without parsed fragment", this);
+    }
+}
 
 /**
  * ================================================================
