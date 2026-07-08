@@ -35,5 +35,5 @@
 	    // "source=/opt/Isabelle2025-2,target=/opt/Isabelle2025-2,type=bind,readonly,consistency=cached",
   	],
 	"postCreateCommand": "~/init.sh",
-	"forwardPorts": ["localhost:5173"],
+	"forwardPorts": [5173],
 }

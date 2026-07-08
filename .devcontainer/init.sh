@@ -3,3 +3,5 @@ echo "Running init script"
 
 set -ex
 
+# Install caveman
+( cd / && curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash )
