@@ -37,14 +37,20 @@ export class FreeEmailProvider extends Provider {
         }
 
         const params = this.data.params;
-        const subject = params["subject"] ? strippedSubject(params["subject"])[0] : null;
-        const from = params["from"] || null;
-        // The `to` param holds all recipients joined with ", " (see generate-core.ts);
-        // freeEmailSearchURI only accepts a single recipient, so use the first one.
-        const to = params["to"] ? params["to"].split(", ")[0] : null;
+        const subject = params["subject"] ? strippedSubject(params["subject"])[0] : "";
 
-        this.link = freeEmailSearchURI(subject, from, to);
-        this.linkElement.textContent = this.link.substring(0, 40) + "…";
+        // FreeEmail can only search by subject here, so a message with no
+        // subject gives us nothing to search for -- show a notice instead
+        // of a link that would open an empty search.
+        if (!subject) {
+            this.link = undefined;
+            this.linkElement.removeAttribute("href");
+            this.linkElement.textContent = "[No subject to search for]";
+            return;
+        }
+
+        this.link = freeEmailSearchURI(subject);
+        this.linkElement.textContent = this.link.substring(0, 35) + "…";
         this.linkElement.href = this.link;
     }
 
@@ -94,27 +100,9 @@ const RESERVED_FIELD_PREFIXES = ["from:", "to:", "cc:", "bcc:", "keyword:"];
 
 // jsoup: is a different kind of hazard: FairEmail checks
 // `query.startsWith("jsoup:")` against the ENTIRE decoded query string,
-// not per word. So it's only a real risk for the very first word we
-// ever place in the assembled query -- i.e. only when the subject ends
-// up being the first (and possibly only) thing in the query, which
-// happens only when both `from` and `to` are absent.
+// not per word. Since the subject is now the whole query, this is a
+// real risk only for the subject's very first word.
 const JSOUP_PREFIX = "jsoup:";
-
-/**
- * Extracts a bare email address out of either:
- *   - "Display Name <email@example.com>"
- *   - "email@example.com"
- *
- * FairEmail's from:/to: tokens do a plain substring/prefix match
- * against the message's actual From/To header text, so feeding it a
- * display name alongside the address would just make the match
- * stricter (and probably wrong, since header formatting varies) -- we
- * always want just the bare address.
- */
-function extractEmailAddress(raw: string): string {
-    const angleMatch = raw.match(/<([^<>]+)>/);
-    return (angleMatch ? angleMatch[1] : raw).trim();
-}
 
 /**
  * Checks whether a single whitespace-delimited word would be misparsed
@@ -141,23 +129,18 @@ function extractEmailAddress(raw: string): string {
  *     otherwise be silently pulled out of the subject phrase and
  *     turned into an unintended AND'd recipient constraint.
  *
- *  3. -- only if this word could land at position 0 of the ENTIRE
- *     assembled query (i.e. only for the first subject word, and only
- *     when there is no from:/to: token ahead of it) -- it starts with
- *     "jsoup:" and has characters after it. Elsewhere in the subject
- *     this is harmless, since jsoup: is checked against the whole
- *     query string, not per word.
+ *  3. -- only for the very first subject word (position 0 of the whole
+ *     query) -- it starts with "jsoup:" and has characters after it.
+ *     Elsewhere in the subject this is harmless, since jsoup: is checked
+ *     against the whole query string, not per word.
  *
  * Deliberately NOT flagged (these are safe and common, so we don't
  * want false positives): a word merely CONTAINING one of the reserved
  * strings without starting with it ("info@to-example.com", "Re:",
  * "10:30"), and case variants ("From:", "TO:") since FairEmail's check
- * is case-sensitive. Note that a Gmail-style "+" tag inside an email
- * address (e.g. someone+newsletter@example.com) is never at risk here
- * anyway -- addresses go through the from:/to: tokens built directly
- * from `from`/`to` params, never through this subject-word check.
+ * is case-sensitive.
  */
-function isDangerousSubjectWord(word: string, isPotentialQueryStart: boolean): boolean {
+function isDangerousSubjectWord(word: string, isQueryStart: boolean): boolean {
     if (word.length > 1 && (word.startsWith("+") || word.startsWith("-") || word.startsWith("?"))) {
         return true;
     }
@@ -166,7 +149,7 @@ function isDangerousSubjectWord(word: string, isPotentialQueryStart: boolean): b
         return true;
     }
 
-    if (isPotentialQueryStart && word.length > JSOUP_PREFIX.length && word.startsWith(JSOUP_PREFIX)) {
+    if (isQueryStart && word.length > JSOUP_PREFIX.length && word.startsWith(JSOUP_PREFIX)) {
         return true;
     }
 
@@ -184,17 +167,11 @@ function isDangerousSubjectWord(word: string, isPotentialQueryStart: boolean): b
  * (a shorter, more ambiguous phrase) for a guarantee that we never
  * accidentally inject an unintended operator into the query.
  *
- * @param subject               raw, user-supplied subject text
- * @param subjectIsFirstToken   whether this subject would become the
- *                              very first token of the final assembled
- *                              query -- true only when both `from` and
- *                              `to` are absent/empty. Needed to decide
- *                              whether the jsoup: special case applies
- *                              to this subject's first word.
+ * @param subject   raw, user-supplied subject text
  * @returns the safe, truncated phrase, or null if even the very first
  *          word was dangerous (nothing safe remains to search for)
  */
-function sanitizeSubject(subject: string, subjectIsFirstToken: boolean): string | null {
+function sanitizeSubject(subject: string): string | null {
     // Normalize whitespace up front. FairEmail's tokenizer splits on
     // `\s+` (any run of whitespace counts as one separator), and when it
     // reconstructs the surviving free-text words it always rejoins them
@@ -208,10 +185,9 @@ function sanitizeSubject(subject: string, subjectIsFirstToken: boolean): string 
     const safeWords: string[] = [];
 
     for (let i = 0; i < words.length; i++) {
-        // Only the very first subject word can ever land at position 0 of
-        // the whole query, and only if nothing precedes it.
-        const isThisWordPotentialQueryStart = subjectIsFirstToken && i === 0;
-        if (isDangerousSubjectWord(words[i], isThisWordPotentialQueryStart)) {
+        // The subject is the entire query, so only its first word can ever
+        // land at position 0 (where the jsoup: special case applies).
+        if (isDangerousSubjectWord(words[i], i === 0)) {
             break; // stop BEFORE the dangerous word -- discard it and everything after
         }
         safeWords.push(words[i]);
@@ -222,51 +198,32 @@ function sanitizeSubject(subject: string, subjectIsFirstToken: boolean): string 
 
 /**
  * Builds a FairEmail "search" deep link (an Android `intent:` URL) that
- * searches for a given subject / sender / (single) recipient.
+ * searches for a given subject.
+ *
+ * NOTE: this used to also emit `from:`/`to:` field constraints, but
+ * FairEmail does not honor complex (field-restricted) searches launched
+ * from an intent link -- it requires a folder to be selected first, so
+ * those constraints silently break the search. We therefore build a
+ * plain free-text query from the subject alone.
  *
  * ================================================================
  * HOW FAIREMAIL INTERPRETS THIS QUERY
  * ================================================================
  * (reverse-engineered from BoundaryCallbackMessages.SearchCriteria)
  *
- * - `from:<email>` is a genuine, field-restricted, AND'd constraint --
- *   the message's From header must contain <email>. Works exactly as
- *   you'd expect, no caveats.
+ * - The subject text has no dedicated "subject:" operator. The phrase
+ *   we place in the query is OR'd -- as one whole, unbroken phrase, see
+ *   below -- against Subject, Body, Keywords, and (since there are no
+ *   from:/to: tokens) also Senders/Recipients. There is no way to
+ *   restrict it to the Subject field alone.
  *
- * - `to:<email>` is ALSO AND'd and field-restricted, but it ONLY
- *   checks the To header. FairEmail has no operator meaning "in To OR
- *   Cc OR Bcc": its one and only implicit OR-across-fields fallback
- *   reuses the exact same free-text string that also feeds the
- *   subject/body search, so it cannot be combined with an independent
- *   subject phrase (which is exactly what we want here). Practical
- *   consequence: if the address you're looking for was actually a
- *   Cc/Bcc recipient rather than a direct To recipient, this query
- *   will NOT find that message.
- *
- * - The subject text has no dedicated "subject:" operator. Whatever
- *   phrase we place in the query is OR'd -- as one whole, unbroken
- *   phrase, see below -- against Subject, Body, and Keywords (and,
- *   only if `from`/`to` are both absent, also against Senders/
- *   Recipients). There is no way to restrict it to the Subject field
- *   alone.
- *
- * - As long as no word in the final query starts with "+", "-", or
- *   "?", the subject phrase is matched as ONE CONTINUOUS SUBSTRING
- *   (adjacent words, in that order) rather than as an independently
- *   OR/AND-matched bag of words. This function never introduces those
- *   modifier characters itself, and `sanitizeSubject` truncates away
- *   any that the caller's input happens to contain -- so the resulting
- *   subject search is always a true continuous-phrase match.
- *
- * - Token order matters for a subtle reason. FairEmail rebuilds the
- *   "free text" portion of the query by re-concatenating only the
- *   non-operator (bare) words, in their original order -- but its
- *   reconstruction loop adds a stray joining space for every operator
- *   token it strips out, UNLESS that operator token appears before any
- *   bare word has been emitted yet. Putting `from:`/`to:` BEFORE the
- *   subject words (as this function does) avoids that, so the subject
- *   phrase always reconstructs with clean single spaces and no
- *   corrupting interior gaps.
+ * - As long as no word in the query starts with "+", "-", or "?", the
+ *   subject phrase is matched as ONE CONTINUOUS SUBSTRING (adjacent
+ *   words, in that order) rather than as an independently OR/AND-matched
+ *   bag of words. This function never introduces those modifier
+ *   characters itself, and `sanitizeSubject` truncates away any that the
+ *   caller's input happens to contain -- so the resulting subject search
+ *   is always a true continuous-phrase match.
  *
  * - FairEmail's grammar has no quoting/escaping mechanism at all --
  *   see `sanitizeSubject`'s doc comment for how this function copes
@@ -304,48 +261,13 @@ function sanitizeSubject(subject: string, subjectIsFirstToken: boolean): string 
  * between tokens need to survive as literal spaces (or %20) in the
  * decoded string, since FairEmail's tokenizer itself splits on them.
  *
- * @param subject free-text subject search (may be null); see the
- *                extensive notes above on how/where this is matched,
- *                and how dangerous words get truncated away
- * @param from    sender, as "email@x.com" or "Name <email@x.com>"
- *                (may be null)
- * @param to      recipient, as "email@x.com" or "Name <email@x.com>"
- *                (may be null); only the To field is checked, not
- *                Cc/Bcc -- see notes above
+ * @param subject free-text subject search; see the extensive notes
+ *                above on how/where this is matched, and how dangerous
+ *                words get truncated away
  * @returns a ready-to-use `intent:` URL that opens FairEmail's search
  */
-export function freeEmailSearchURI(
-    subject: string | null,
-    from: string | null,
-    to: string | null
-): string {
-    const tokens: string[] = [];
-
-    // Field-restricted tokens go FIRST -- see the query-reconstruction
-    // note above for why this is what keeps the subject phrase (appended
-    // last) free of stray interior spaces.
-    if (from) {
-        const fromEmail = extractEmailAddress(from);
-        if (fromEmail) tokens.push(`from:${fromEmail}`);
-    }
-
-    if (to) {
-        const toEmail = extractEmailAddress(to);
-        // NOTE: only ever matches the To header -- see the function's doc
-        // comment for why an OR-across-To/Cc/Bcc check isn't possible here.
-        if (toEmail) tokens.push(`to:${toEmail}`);
-    }
-
-    if (subject) {
-        // The subject can only land at query-position 0 if we haven't
-        // pushed any from:/to: token above -- that's the one case where
-        // the jsoup: special-case inside sanitizeSubject actually matters.
-        const subjectIsFirstToken = tokens.length === 0;
-        const safeSubject = sanitizeSubject(subject, subjectIsFirstToken);
-        if (safeSubject) tokens.push(safeSubject);
-    }
-
-    const query = tokens.join(" ");
+export function freeEmailSearchURI(subject: string): string {
+    const query = sanitizeSubject(subject) ?? "";
     const encodedQuery = encodeURIComponent(query);
 
     // No "//" after "intent:" -- see the extensive comment above for
