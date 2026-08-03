@@ -6,11 +6,13 @@ import {ThunderbirdProvider} from "./thunderbird.ts";
 import {DataTableProvider} from "./data-table.ts";
 import {GmailProvider} from "./gmail.ts";
 import {FreeEmailProvider} from "./free-email.ts";
+import {AppleMailProvider} from "./apple-mail.ts";
 
 export let providers: ReadonlyArray<Provider> = [
     new AutomaticProvider(),
     new ManualProvider(),
     new ThunderbirdProvider(),
+    new AppleMailProvider(),
     new DataTableProvider(),
     new GmailProvider(),
     new FreeEmailProvider(),
