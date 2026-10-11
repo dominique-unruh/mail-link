@@ -1,21 +1,21 @@
-import html from './free-email.html?raw';
+import html from './fair-email.html?raw';
 import {Provider} from "../provider.ts";
 import type {HTMLLike, ParsedFragment} from "../types.ts";
 import {strippedSubject} from "../utils.ts";
 
-export class FreeEmailProvider extends Provider {
+export class FairEmailProvider extends Provider {
     private linkElement!: HTMLAnchorElement;
     private autoActionCheckbox!: HTMLInputElement;
     private data: ParsedFragment | null = null;
     private link: string | undefined;
 
     constructor() {
-        super({'id': 'free-email', 'title': 'FreeEmail (Android)', 'html': html});
+        super({'id': 'fair-email', 'title': 'FairEmail (Android)', 'html': html});
     }
 
     protected init(): void | Promise<void> {
-        this.linkElement = document.getElementById("free-email-link") as HTMLAnchorElement;
-        this.autoActionCheckbox = document.getElementById("free-email-autoaction") as HTMLInputElement;
+        this.linkElement = document.getElementById("fair-email-link") as HTMLAnchorElement;
+        this.autoActionCheckbox = document.getElementById("fair-email-autoaction") as HTMLInputElement;
 
         this.autoActionCheckbox.addEventListener("change", () => {
             if (this.autoActionCheckbox.checked) this.takeAutoAction();
@@ -39,7 +39,7 @@ export class FreeEmailProvider extends Provider {
         const params = this.data.params;
         const subject = params["subject"] ? strippedSubject(params["subject"])[0] : "";
 
-        // FreeEmail can only search by subject here, so a message with no
+        // FairEmail can only search by subject here, so a message with no
         // subject gives us nothing to search for -- show a notice instead
         // of a link that would open an empty search.
         if (!subject) {
@@ -49,7 +49,7 @@ export class FreeEmailProvider extends Provider {
             return;
         }
 
-        this.link = freeEmailSearchURI(subject);
+        this.link = fairEmailSearchURI(subject);
         this.linkElement.textContent = this.link.substring(0, 35) + "…";
         this.linkElement.href = this.link;
     }
@@ -63,7 +63,7 @@ export class FreeEmailProvider extends Provider {
     }
 
     automaticActionText(): HTMLLike {
-        return 'Directly search the email in the FreeEmail app.';
+        return 'Directly search the email in the FairEmail app.';
     }
 
     doAutoAction(): void | Promise<void> {
@@ -76,7 +76,7 @@ export class FreeEmailProvider extends Provider {
 
 /**
  * ================================================================
- * freeEmailSearchURI -- builds a FairEmail "search" deep link
+ * fairEmailSearchURI -- builds a FairEmail "search" deep link
  * ================================================================
  *
  * This whole file is derived from reading FairEmail's actual source
@@ -266,7 +266,7 @@ function sanitizeSubject(subject: string): string | null {
  *                words get truncated away
  * @returns a ready-to-use `intent:` URL that opens FairEmail's search
  */
-export function freeEmailSearchURI(subject: string): string {
+export function fairEmailSearchURI(subject: string): string {
     const query = sanitizeSubject(subject) ?? "";
     const encodedQuery = encodeURIComponent(query);
 

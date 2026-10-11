@@ -5,7 +5,7 @@ import {ManualProvider} from "./manually.ts";
 import {ThunderbirdProvider} from "./thunderbird.ts";
 import {DataTableProvider} from "./data-table.ts";
 import {GmailProvider} from "./gmail.ts";
-import {FreeEmailProvider} from "./free-email.ts";
+import {FairEmailProvider} from "./fair-email.ts";
 import {AppleMailProvider} from "./apple-mail.ts";
 
 export let providers: ReadonlyArray<Provider> = [
@@ -15,7 +15,7 @@ export let providers: ReadonlyArray<Provider> = [
     new AppleMailProvider(),
     new DataTableProvider(),
     new GmailProvider(),
-    new FreeEmailProvider(),
+    new FairEmailProvider(),
 ];
 
 export function getProvider(id: string): Provider | null {
