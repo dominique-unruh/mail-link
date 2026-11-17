@@ -1,40 +1,13 @@
-import PostalMime from 'postal-mime';
-import {buildMailLink, type MailLinkFields} from 'mail-link';
-
-/** Formats a parsed address as `Name <address>` (or just the address if there is no display name). */
-export function formatAddress(addr: {name?: string; address?: string}): string {
-    if (addr.name && addr.name !== '')
-        return `${addr.name} <${addr.address ?? ''}>`;
-    return addr.address ?? '';
-}
+import {buildMailLink, messageToFields} from 'mail-link';
 
 /** Parses a raw email (RFC 822 text) and builds a mail-link with `baseUrl` as its base.
  * `whohasit`, if non-empty, names who holds the email (populates the `whohasit` field).
  * Returns `null` if the email has no Message-ID (in which case no link can be generated). */
-export async function emailToMailLink(raw: string, baseUrl: string, whohasit?: string): Promise<string | null> {
-    const email = await PostalMime.parse(raw);
-
-    const messageId = email.messageId?.trim();
-    if (!messageId)
+export function emailToMailLink(raw: string, baseUrl: string, whohasit?: string): string | null {
+    const fields = messageToFields(raw);
+    if (!fields)
         return null;
 
-    const fields: MailLinkFields = {
-        // The Message-ID header comes with surrounding <>; the mail-link format uses the bare id.
-        messageId: messageId.replace(/^<(.*)>$/, '$1'),
-    };
-
-    if (email.subject)
-        fields.subject = email.subject;
-    // The mail-link format requires an RFC 5322 timestamp. postal-mime's
-    // `email.date` is normalised to ISO 8601, so use the original Date header
-    // (already RFC 5322) verbatim instead.
-    const dateHeader = email.headers.find(h => h.key === 'date')?.value;
-    if (dateHeader)
-        fields.date = dateHeader;
-    if (email.from)
-        fields.from = formatAddress(email.from);
-    if (email.to && email.to.length > 0)
-        fields.to = email.to.map(formatAddress).join(', ');
     if (whohasit && whohasit.trim() !== '')
         fields.whohasit = whohasit.trim();
 

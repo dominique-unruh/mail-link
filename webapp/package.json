@@ -12,9 +12,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "mail-link": "*",
     "@shoelace-style/shoelace": "^2.20.1",
-    "postal-mime": "^2.4.0"
+    "mail-link": "*"
   },
   "devDependencies": {
     "typescript": "~5.9.3",

@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {emailToMailLink, formatAddress} from '../src/generate-core.ts';
+import {emailToMailLink} from '../src/generate-core.ts';
 
 const base = 'https://example.org/mail-link/';
 
@@ -7,17 +7,6 @@ const base = 'https://example.org/mail-link/';
 function rawEmail(headers: string): string {
     return headers.trimStart() + '\n\nThis body text must be ignored.\n';
 }
-
-describe('formatAddress', () => {
-    it('formats "Name <address>" when a display name is present', () => {
-        expect(formatAddress({name: 'Sender Name', address: 's@host'})).toBe('Sender Name <s@host>');
-    });
-
-    it('returns just the address when there is no display name', () => {
-        expect(formatAddress({address: 's@host'})).toBe('s@host');
-        expect(formatAddress({name: '', address: 's@host'})).toBe('s@host');
-    });
-});
 
 describe('emailToMailLink', () => {
     it('builds a link from headers and ignores the body', async () => {
@@ -63,6 +52,15 @@ Message-ID: <abc@host>
 To: a@host, b@host`), base);
 
         expect(url).toContain('&to=a%40host%2C%20b%40host');
+    });
+
+    it('keeps a quoted display name containing a comma intact', async () => {
+        const url = await emailToMailLink(rawEmail(`
+Message-ID: <abc@host>
+From: "Doe, John" <john@host>`), base);
+
+        // '"Doe, John" <john@host>' (with the quotes) percent-encoded.
+        expect(url).toContain('&from=%22Doe%2C%20John%22%20%3Cjohn%40host%3E');
     });
 
     it('adds a whohasit field when a name is given', async () => {
