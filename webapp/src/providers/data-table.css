@@ -24,3 +24,22 @@ table.data-table {
 .data-table-grayed {
     color: gray;
 }
+
+.data-table-errors {
+    margin-top: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    color: #664d03;
+    background-color: #fff3cd;
+    border: 1px solid #ffe69c;
+    border-radius: 8px;
+}
+
+.data-table-errors p {
+    margin: 0;
+}
+
+.data-table-errors ul {
+    margin: 0.25rem 0 0 0;
+    padding-left: 1.25rem;
+    word-break: break-word;
+}

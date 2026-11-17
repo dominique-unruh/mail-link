@@ -1,6 +1,6 @@
 import "./data-table.css";
 import {Provider} from "../provider.ts";
-import {htmlTag, insertHtmlLike, strippedSubject, text} from "../utils.ts";
+import {appendHtmlLike, htmlLi, htmlP, htmlTag, insertHtmlLike, strippedSubject, text} from "../utils.ts";
 import type {HTMLLike} from "../types.ts";
 import type {MailLinkFields} from "mail-link";
 import {SlCopyButton} from "@shoelace-style/shoelace";
@@ -97,8 +97,6 @@ export class DataTableProvider extends Provider {
 
         const tbody = htmlTag("tbody");
 
-        // TODO: Show parsed.parseErrors (e.g., below the table). The mail-link spec says parsers
-        //  SHOULD provide the user with the data of invalid fields, and parseErrors contains it.
         for (const [key, value] of Object.entries(parsed)) {
             if (key === "messageId" || key === "parseErrors" || typeof value !== "string")
                 continue;
@@ -114,5 +112,16 @@ export class DataTableProvider extends Provider {
 
         insertHtmlLike(this.contentDiv(),
             htmlTag("table", ["class", "data-table"], tbody));
+
+        // The mail-link spec says parsers SHOULD provide the user with the data of invalid
+        // fields; parseErrors describes them (including their data).
+        if (parsed.parseErrors && parsed.parseErrors.length > 0) {
+            const list = htmlTag("ul");
+            for (const error of parsed.parseErrors)
+                // text(): the messages contain data from the link, which must not be parsed as HTML.
+                list.appendChild(htmlLi(text(error)));
+            appendHtmlLike(this.contentDiv(), htmlTag("div", ["class", "data-table-errors"],
+                htmlP(text("This link does not fully follow the mail-link format:")), list));
+        }
     }
 }
