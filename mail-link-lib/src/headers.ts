@@ -48,36 +48,66 @@ function bytesOf(binary: string): Uint8Array {
     return bytes;
 }
 
+/** The bytes encoded by the text of one encoded-word (`B` = base64, `Q` = Q-encoding).
+ * Throws on invalid base64. */
+function wordBytes(encoding: string, text: string): Uint8Array {
+    if (encoding.toUpperCase() === 'B')
+        return bytesOf(atob(text.replace(/\s+/g, '')));
+    // Q-encoding: '_' means space, '=XX' is a hex byte.
+    return bytesOf(text
+        .replace(/_/g, ' ')
+        .replace(/=([0-9A-Fa-f]{2})/g, (_m: string, h: string) =>
+            String.fromCharCode(parseInt(h, 16))));
+}
+
 /**
  * Decode RFC 2047 encoded-words (`=?charset?B?...?=` / `=?charset?Q?...?=`) found
  * in a header value. Undecodable words are left verbatim.
  */
 export function decodeEncodedWords(value: string): string {
     const word = /=\?([^?]+)\?([bBqQ])\?([^?]*)\?=/;
+    // A run of encoded-words separated only by whitespace. That whitespace is not part
+    // of the text (RFC 2047 §6.2), so the words of a run are decoded together.
+    const run = new RegExp(`${word.source}(?:\\s+${word.source})*`, 'g');
 
-    // Whitespace separating two adjacent encoded-words is not part of the text
-    // (RFC 2047 §6.2); collapse it so decoded words join seamlessly.
-    const joined = value.replace(
-        new RegExp(`(${word.source})\\s+(?=${word.source})`, 'g'),
-        '$1',
-    );
-
-    return joined.replace(new RegExp(word.source, 'g'), (match, charset, enc, text) => {
-        try {
-            let bytes: Uint8Array;
-            if (enc.toUpperCase() === 'B') {
-                bytes = bytesOf(atob(text.replace(/\s+/g, '')));
-            } else {
-                // Q-encoding: '_' means space, '=XX' is a hex byte.
-                const decoded = text
-                    .replace(/_/g, ' ')
-                    .replace(/=([0-9A-Fa-f]{2})/g, (_m: string, h: string) =>
-                        String.fromCharCode(parseInt(h, 16)));
-                bytes = bytesOf(decoded);
+    return value.replace(run, (match: string) => {
+        let result = '';
+        // Consecutive words with the same charset are decoded as one byte sequence, so that
+        // a multibyte character split across words (which some mailers produce, although
+        // RFC 2047 §5 forbids it) is reassembled.
+        let charset = '';
+        let raw = '';
+        let bytes: number[] = [];
+        const flush = () => {
+            if (raw === '')
+                return;
+            try {
+                result += new TextDecoder(charset).decode(new Uint8Array(bytes));
+            } catch {
+                result += raw; // unknown charset: leave verbatim
             }
-            return new TextDecoder(charset).decode(bytes);
-        } catch {
-            return match;
+            raw = '';
+            bytes = [];
+        };
+
+        for (const [w, wordCharset, encoding, text] of match.matchAll(new RegExp(word.source, 'g'))) {
+            // RFC 2231 §5 allows a language suffix: `charset*language`.
+            const cs = wordCharset.split('*')[0].toLowerCase();
+            let wb: Uint8Array;
+            try {
+                wb = wordBytes(encoding, text);
+            } catch {
+                flush();
+                result += w; // undecodable word: leave verbatim
+                continue;
+            }
+            if (cs !== charset)
+                flush();
+            charset = cs;
+            raw += w;
+            bytes.push(...wb);
         }
+        flush();
+        return result;
     });
 }

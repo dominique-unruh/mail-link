@@ -46,4 +46,32 @@ describe('decodeEncodedWords', () => {
     it('leaves plain text and undecodable words untouched', () => {
         expect(decodeEncodedWords('Hello world')).toBe('Hello world');
     });
+
+    it('reassembles a multibyte character split across B-encoded words', () => {
+        // "Preis 5€ ok" with the 3 bytes of € (E2 82 AC) split 2+1 across the words.
+        const first = btoa('Preis 5\xE2\x82');
+        const second = btoa('\xAC ok');
+        expect(decodeEncodedWords(`=?UTF-8?B?${first}?= =?UTF-8?B?${second}?=`)).toBe('Preis 5€ ok');
+    });
+
+    it('reassembles a multibyte character split across Q-encoded words', () => {
+        expect(decodeEncodedWords('=?utf-8?Q?Gr=C3?= =?UTF-8?Q?=BC=C3=9Fe?=')).toBe('Grüße');
+    });
+
+    it('ignores an RFC 2231 language suffix on the charset', () => {
+        expect(decodeEncodedWords('=?UTF-8*de?Q?Gr=C3=BC=C3=9Fe?=')).toBe('Grüße');
+    });
+
+    it('decodes adjacent words with different charsets separately', () => {
+        expect(decodeEncodedWords('=?ISO-8859-1?Q?M=FCller?= =?UTF-8?Q?_=C3=A4?=')).toBe('Müller ä');
+    });
+
+    it('keeps text around encoded-words', () => {
+        expect(decodeEncodedWords('Re: =?UTF-8?Q?Gr=C3=BC=C3=9Fe?= (2)')).toBe('Re: Grüße (2)');
+    });
+
+    it('leaves words with an unknown charset or invalid base64 verbatim', () => {
+        expect(decodeEncodedWords('=?x-unknown?Q?abc?=')).toBe('=?x-unknown?Q?abc?=');
+        expect(decodeEncodedWords('=?UTF-8?Q?a?= =?UTF-8?B?***?= =?UTF-8?Q?b?=')).toBe('a=?UTF-8?B?***?=b');
+    });
 });
