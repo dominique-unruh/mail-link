@@ -97,6 +97,8 @@ export class DataTableProvider extends Provider {
 
         const tbody = htmlTag("tbody");
 
+        // TODO: Show parsed.parseErrors (e.g., below the table). The mail-link spec says parsers
+        //  SHOULD provide the user with the data of invalid fields, and parseErrors contains it.
         for (const [key, value] of Object.entries(parsed)) {
             if (key === "messageId" || key === "parseErrors" || typeof value !== "string")
                 continue;
