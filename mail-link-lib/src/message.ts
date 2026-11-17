@@ -4,7 +4,16 @@
 import {parseHeaders, firstHeader, decodeEncodedWords} from './headers.js';
 import type {MailLinkFields} from './maillink.js';
 
-/** Build mail-link fields from a raw message, or null if it has no Message-ID. */
+/** Build mail-link fields from the headers of a raw email.
+ *
+ * @param raw An email in RFC 5322 format: the full message or only its header section, with
+ *   CRLF or LF line endings. Only the headers are read.
+ * @returns The fields `messageId` (without the surrounding `<>`), `subject`, `date`, `from`, and
+ *   `to`, each taken from the first occurrence of the corresponding header and omitted if the
+ *   header is missing or empty. RFC 2047 encoded-words (e.g., `=?UTF-8?Q?...?=`) are decoded.
+ *   Otherwise values are passed through as written: addresses are not reformatted, and `date` is
+ *   the verbatim `Date` header (as required by the mail-link format). `whohasit` is never set.
+ *   Returns `null` if the email has no `Message-ID` header (then no mail-link can be built). */
 export function messageToFields(raw: string): MailLinkFields | null {
     const headers = parseHeaders(raw);
 

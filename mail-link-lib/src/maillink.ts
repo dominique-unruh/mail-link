@@ -49,9 +49,17 @@ export const KNOWN_FIELDS: readonly string[] = ['subject', 'date', 'from', 'to',
 export const FIELD_NAME = /^[a-z][a-z0-9-]*$/;
 
 /** Construct a mail-link URL from `baseUrl` and the given `fields`.
- * The known fields are emitted first (in the order of {@link KNOWN_FIELDS}), then all other
- * fields in property order. Empty and undefined fields are omitted; `parseErrors` is ignored.
- * Throws if no message id is given, or if a field has an invalid name or a non-string value. */
+ *
+ * The known fields are emitted first (in the order subject, date, from, to, whohasit), then all
+ * other fields in property order. Empty and undefined fields are omitted; `parseErrors` is
+ * ignored. Values are percent-encoded, and the last character of the result is percent-encoded
+ * if it might otherwise be cut off when the link is recognized in plain text (e.g., a final `.`).
+ *
+ * @param baseUrl URL of the landing page that interprets mail-links (e.g.,
+ *   `https://example.org/mail-link/`). Must not contain a `#`; it is used verbatim.
+ * @param fields The data to encode. `messageId` is required.
+ * @throws Error if `messageId` is missing or empty, or if a field has an invalid name or a
+ *   non-string value (possible only by bypassing the type of `fields`). */
 export function buildMailLink(baseUrl: string, fields: MailLinkFields): string {
     if (!fields.messageId || fields.messageId === "")
         throw Error("Could not determine message id");
