@@ -3,7 +3,7 @@
 import {makeLinkTitle, makeLinkTitles, makeSpecificLinkTitle} from './maketitle.js';
 import {defaultOptions, Options, PrivacyNoticeOptions} from "./common.js";
 import Tab = browser.tabs.Tab;
-import {buildMailLink, MailLinkFields} from "./shared/maillink.js";
+import {buildMailLink, type MailLinkFields} from "mail-link";
 
 /** Returns options, or redirects user to options page and returns null */
 async function getOptions() {

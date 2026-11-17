@@ -1,8 +1,8 @@
 // Turn a raw RFC 822 message into mail-link fields. Kept DOM-free so it can be
 // unit-tested directly.
 
-import {parseHeaders, firstHeader, decodeEncodedWords} from './headers.ts';
-import type {MailLinkFields} from '../../shared/maillink.ts';
+import {parseHeaders, firstHeader, decodeEncodedWords} from './headers.js';
+import type {MailLinkFields} from './maillink.js';
 
 /** Build mail-link fields from a raw message, or null if it has no Message-ID. */
 export function messageToFields(raw: string): MailLinkFields | null {

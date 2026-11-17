@@ -1,7 +1,7 @@
 # mail-link bookmarklet
 
 A bookmarklet that, from a supported webmail app, extracts the open message's
-headers and builds a [mail-link](../shared/maillink.ts) pointing at the resolve
+headers and builds a [mail-link](../mail-link-lib/src/maillink.ts) pointing at the resolve
 page.
 
 Currently supported: **GMail (web)**.
@@ -12,9 +12,9 @@ Currently supported: **GMail (web)**.
 2. If unsupported, alert *"Unsupported email app"*.
 3. Otherwise the app's extractor fetches the raw message source
    (GMail: via the same-origin "Show original" / "Download Original" endpoints).
-4. Parse the headers ([`src/headers.ts`](src/headers.ts): RFC 5322 unfolding +
-   RFC 2047 encoded-words).
-5. Build the mail-link with the shared code and show it for copying.
+4. Parse the headers ([`headers.ts`](../mail-link-lib/src/headers.ts) in the mail-link library:
+   RFC 5322 unfolding + RFC 2047 encoded-words).
+5. Build the mail-link with the mail-link library and show it for copying.
 
 ## Configuration
 

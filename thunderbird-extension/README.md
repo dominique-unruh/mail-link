@@ -50,6 +50,19 @@ Alternatively: run `make xpi` and install the resulting file `copy-message-link-
   to the server hosting the landing page. (Unless the server serves a malicious webpage that transfers information back.)
 * You can host your own landing page if you prefer. (Source is available [here](https://github.com/dominique-unruh/mail-link/tree/main/webapp).)
 
+# Building from source
+
+The add-on is built from the [mail-link repository](https://github.com/dominique-unruh/mail-link)
+(this directory plus the [mail-link library](../mail-link-lib/), whose sources are bundled into the add-on):
+
+1. Run `npm ci` in the repository root (the components are npm workspaces of the root).
+2. Run `make xpi` in `thunderbird-extension/`.
+   This type-checks the code, bundles it with esbuild (not minified) into `dist/`, and zips `dist/`
+   into `copy-message-link-VERSION.xpi`.
+
+For submission to the add-on store, the source code to provide is an archive of the repository
+at the released commit; the build steps are the ones above.
+
 # Lack of warranty
 
 The add-on is provided as is and without warranty of any kind.

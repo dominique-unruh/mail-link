@@ -1,5 +1,5 @@
 import PostalMime from 'postal-mime';
-import {buildMailLink, type MailLinkFields} from '../../shared/maillink.ts';
+import {buildMailLink, type MailLinkFields} from 'mail-link';
 
 /** Formats a parsed address as `Name <address>` (or just the address if there is no display name). */
 export function formatAddress(addr: {name?: string; address?: string}): string {

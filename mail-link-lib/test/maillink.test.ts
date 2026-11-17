@@ -1,6 +1,5 @@
 import {describe, expect, it} from 'vitest';
-// The shared module lives outside the webapp; the webapp's Vitest is its runner.
-import {buildMailLink, fixupURL, myEncodeURIComponent} from '../../shared/maillink.ts';
+import {buildMailLink, fixupURL, myEncodeURIComponent} from '../src/maillink.js';
 
 describe('myEncodeURIComponent', () => {
     it("encodes ' as %27 (unlike plain encodeURIComponent)", () => {

@@ -25,6 +25,8 @@ const result = await build({
     format: 'iife',
     platform: 'browser',
     target: 'es2020',
+    // Use the mail-link library's TypeScript sources directly (no prior build of the library needed).
+    conditions: ['mail-link-source'],
     write: false,
 });
 

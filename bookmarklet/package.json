@@ -9,6 +9,9 @@
     "typecheck": "tsc",
     "test": "vitest run"
   },
+  "dependencies": {
+    "mail-link": "*"
+  },
   "devDependencies": {
     "esbuild": "^0.27.2",
     "typescript": "~5.9.3",

@@ -1,12 +1,14 @@
 {
+  // Type-checking only; scripts/build.ts bundles with esbuild.
   "compilerOptions": {
     "target": "ES2020",
     "module": "ES2020",
     "moduleResolution": "bundler",
+    // Use the mail-link library's TypeScript sources directly (no prior build of the library needed).
+    "customConditions": ["mail-link-source"],
     "strict": true,
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "noEmit": true,
     "lib": ["ES2020", "DOM"]
   },
-  "include": ["src/**/*", "src/shared/**/*"],
+  "include": ["src"]
 }

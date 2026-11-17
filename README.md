@@ -23,4 +23,7 @@ The link format is specified in [this wiki page](https://github.com/dominique-un
   and can open it directly in some mail clients (e.g., Thunderbird, Gmail, Apple Mail, FairEmail).
   Hosted at <https://qis.rwth-aachen.de/people/unruh/tools/mail-link/>.
 * [`bookmarklet/`](bookmarklet/): Bookmarklet for creating links from webmail (currently Gmail).
-* [`shared/`](shared/): Code for constructing links, shared by the components.
+* [`mail-link-lib/`](mail-link-lib/): Library for constructing and processing links, used by the
+  components and published as the npm package `mail-link`.
+
+The components are npm workspaces of the repository root: run `npm install` in the root.

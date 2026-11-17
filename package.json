@@ -2,6 +2,9 @@
   "name": "mail-link-root",
   "private": true,
   "workspaces": [
-    "mail-link-lib"
+    "mail-link-lib",
+    "webapp",
+    "bookmarklet",
+    "thunderbird-extension"
   ]
 }

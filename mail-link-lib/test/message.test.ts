@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {messageToFields} from '../src/message.ts';
+import {messageToFields} from '../src/message.js';
 
 const sample = [
     'Message-ID: <abc.123@example.com>',

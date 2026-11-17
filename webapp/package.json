@@ -1,5 +1,5 @@
 {
-  "name": "mail-link",
+  "name": "mail-link-webapp",
   "private": true,
   "version": "0.0.0",
   "license": "MIT",
@@ -11,13 +11,14 @@
     "preview": "vite preview",
     "test": "vitest run"
   },
+  "dependencies": {
+    "mail-link": "*",
+    "@shoelace-style/shoelace": "^2.20.1",
+    "postal-mime": "^2.4.0"
+  },
   "devDependencies": {
     "typescript": "~5.9.3",
     "vite": "^7.3.1",
     "vitest": "^3.0.0"
-  },
-  "dependencies": {
-    "@shoelace-style/shoelace": "^2.20.1",
-    "postal-mime": "^2.4.0"
   }
 }

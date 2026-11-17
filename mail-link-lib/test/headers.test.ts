@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {parseHeaders, firstHeader, decodeEncodedWords} from '../src/headers.ts';
+import {parseHeaders, firstHeader, decodeEncodedWords} from '../src/headers.js';
 
 describe('parseHeaders', () => {
     it('parses headers and stops at the blank line before the body', () => {

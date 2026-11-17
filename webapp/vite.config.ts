@@ -1,7 +1,13 @@
 import { defineConfig } from 'vitest/config'
+import { defaultClientConditions, defaultServerConditions } from 'vite'
+
+// Use the mail-link library's TypeScript sources directly (no prior build of the library needed).
+const conditions = ['mail-link-source'];
 
 export default defineConfig({
     base: './', // Relative paths
+    resolve: {conditions: [...conditions, ...defaultClientConditions]},
+    ssr: {resolve: {conditions: [...conditions, ...defaultServerConditions]}},
     build: {
         rollupOptions: {
             input: {

@@ -4,7 +4,8 @@
     "target": "ES2020",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "lib": ["ES2020"],
+    // DOM for atob/TextDecoder (also available as globals in Node).
+    "lib": ["ES2020", "DOM"],
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",

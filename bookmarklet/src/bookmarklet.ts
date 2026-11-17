@@ -11,10 +11,9 @@
 // configured values (see inject.mjs) when the bookmarklet is installed.
 
 import {findApp} from './apps.ts';
-import {messageToFields} from './message.ts';
+import {buildMailLink, messageToFields} from 'mail-link';
 import {chooseMessage, showLink} from './popup.ts';
 import {log} from './log.ts';
-import {buildMailLink} from '../../shared/maillink.ts';
 
 const BASE_URL = '@@@BASE_URL@@@';
 const WHOHASIT = '@@@WHOHASIT@@@';
