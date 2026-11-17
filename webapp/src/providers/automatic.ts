@@ -1,7 +1,7 @@
 import html from './automatic.html?raw';
 import {Provider} from "../provider.ts";
 import type {HTMLLike} from "../types.ts";
-import type {ParsedMailLink} from "mail-link";
+import type {MailLinkFields} from "mail-link";
 
 export class AutomaticProvider extends Provider {
     private linkElement!: HTMLAnchorElement;
@@ -22,14 +22,14 @@ export class AutomaticProvider extends Provider {
         })
     }
 
-    dataChanged(data: ParsedMailLink | null): void | Promise<void> {
+    dataChanged(data: MailLinkFields | null): void | Promise<void> {
         if (!data) {
             this.linkElement.href = "";
             this.linkElement.textContent = "[No message ID]";
             return;
         }
         // TODO: Theoretically, the mid should be percent-escaped here. But at least Thunderbird expects a non-escaped mid here. Should we make this configurable?
-        this.uri = "mid:" + data.mid;
+        this.uri = "mid:" + data.messageId;
         this.linkElement.textContent = this.uri;
         this.linkElement.href = this.uri;
     }

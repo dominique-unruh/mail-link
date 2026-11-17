@@ -1,6 +1,6 @@
 import {insertHtmlLike, text, validateNoDuplicateIds} from "./utils.ts";
 import type {HTMLLike, ProviderOptions} from "./types.ts";
-import type {ParsedMailLink} from "mail-link";
+import type {MailLinkFields} from "mail-link";
 import {setAutoActionProvider, unsetAutoActionProvider} from "./main.ts";
 import {options} from "./options.ts";
 
@@ -101,7 +101,7 @@ export abstract class Provider {
     /** Called whenever the data in the URL changes (also after initial loading).
      * If `parsed==null`, this means no email is currently being referenced.
      **/
-    abstract dataChanged(parsed: ParsedMailLink | null): void | Promise<void>;
+    abstract dataChanged(parsed: MailLinkFields | null): void | Promise<void>;
     /** User readable description of the automatic action that will be performed by this provider.
      * Must provide suitable text if the current provider has registered as automatic action provider.
      **/

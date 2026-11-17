@@ -1,6 +1,6 @@
 import {Provider} from "../provider.ts";
 import {htmlEm, htmlLi, htmlP, htmlTag, strippedSubject, text} from "../utils.ts";
-import type {ParsedMailLink} from "mail-link";
+import type {MailLinkFields} from "mail-link";
 
 export class ManualProvider extends Provider {
     static readonly uninitializedText =
@@ -13,7 +13,7 @@ export class ManualProvider extends Provider {
 
     protected init(): void | Promise<void> {}
 
-    dataChanged(parsed: ParsedMailLink | null): void | Promise<void> {
+    dataChanged(parsed: MailLinkFields | null): void | Promise<void> {
         const div = this.contentDiv();
         if (!parsed) {
             div.textContent = ManualProvider.uninitializedText;
@@ -33,21 +33,21 @@ export class ManualProvider extends Provider {
 
         const items: HTMLLIElement[] = [];
 
-        if (parsed.params["subject"])
-            items.push(htmlLi("Search by subject: ", quote(strippedSubject(parsed.params["subject"])[0])));
-        if (parsed.params["date"])
-            items.push(htmlLi("Search by sending date: ", quote(parsed.params["date"])));
-        if (parsed.params["from"])
-            items.push(htmlLi("Search by sender: ", quote(parsed.params["from"])));
-        if (parsed.params["to"])
-            items.push(htmlLi("Search by recipient(s): ", quote(parsed.params["to"])));
-        items.push(htmlLi("Search by message-id: ", quote(parsed.mid),
+        if (parsed.subject)
+            items.push(htmlLi("Search by subject: ", quote(strippedSubject(parsed.subject)[0])));
+        if (parsed.date)
+            items.push(htmlLi("Search by sending date: ", quote(parsed.date)));
+        if (parsed.from)
+            items.push(htmlLi("Search by sender: ", quote(parsed.from)));
+        if (parsed.to)
+            items.push(htmlLi("Search by recipient(s): ", quote(parsed.to)));
+        items.push(htmlLi("Search by message-id: ", quote(parsed.messageId),
             " (your mail software may not support this or the feature may be hidden)"));
 
         div.appendChild(htmlTag("ul", ...items));
 
         div.appendChild(htmlP(text("If you don't find it (maybe you don't actually have that email), you might try to contact the creator of this link ("),
-            parsed.params["whohasit"] ? quote(parsed.params["whohasit"]) : text("if you know who that is"),
+            parsed.whohasit ? quote(parsed.whohasit) : text("if you know who that is"),
             ")."));
     }
 }

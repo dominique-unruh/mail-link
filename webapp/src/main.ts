@@ -4,7 +4,7 @@ import '@shoelace-style/shoelace/dist/components/copy-button/copy-button.js';
 import '@shoelace-style/shoelace/dist/components/details/details.js';
 import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
 import {getProvider, providers} from "./providers/providers.ts";
-import {parseMailLink} from "mail-link";
+import {MailLinkParseError, parseMailLink, type MailLinkFields} from "mail-link";
 import {options, saveOptions} from "./options.ts";
 import {insertHtmlLike} from "./utils.ts";
 import type {Provider} from "./provider.ts";
@@ -13,7 +13,14 @@ const linkInputField = document.getElementById("link") as HTMLInputElement;
 const providerGroup = document.getElementById("how-to-open-group") as HTMLDivElement;
 
 async function displayFragmentData(): Promise<void> {
-    const parsed = parseMailLink(linkInputField.value);
+    let parsed: MailLinkFields | null;
+    try {
+        parsed = parseMailLink(linkInputField.value);
+    } catch (e) {
+        if (!(e instanceof MailLinkParseError))
+            throw e;
+        parsed = null; // Not (yet) a usable link, e.g., while the user is typing
+    }
 
     for (const provider of providers)
         await provider.dataChanged(parsed);

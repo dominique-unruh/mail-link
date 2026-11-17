@@ -1,7 +1,7 @@
 import {Provider} from "../provider.ts";
 import html from "./thunderbird.html?raw";
 import {shellEscape} from "../utils.ts";
-import type {ParsedMailLink} from "mail-link";
+import type {MailLinkFields} from "mail-link";
 
 export class ThunderbirdProvider extends Provider {
     private textarea!: HTMLElement;
@@ -14,12 +14,12 @@ export class ThunderbirdProvider extends Provider {
         this.textarea = document.getElementById('thunderbird-command') as HTMLElement;
     }
 
-    dataChanged(parsed: ParsedMailLink | null): void | Promise<void> {
+    dataChanged(parsed: MailLinkFields | null): void | Promise<void> {
         if (parsed == null) {
             this.textarea.textContent = 'thunderbird mid:your-message-id';
             return;
         }
-        // Note: parsed.mid is not percent-escaped here because thunderbird (incorrectly?) does not decode the mid-URI.
-        this.textarea.textContent = `thunderbird ${shellEscape("mid:" + parsed.mid)}`;
+        // Note: parsed.messageId is not percent-escaped here because thunderbird (incorrectly?) does not decode the mid-URI.
+        this.textarea.textContent = `thunderbird ${shellEscape("mid:" + parsed.messageId)}`;
     }
 }

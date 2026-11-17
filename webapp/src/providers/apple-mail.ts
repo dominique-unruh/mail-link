@@ -1,7 +1,7 @@
 import html from './apple-mail.html?raw';
 import {Provider} from "../provider.ts";
 import type {HTMLLike} from "../types.ts";
-import type {ParsedMailLink} from "mail-link";
+import type {MailLinkFields} from "mail-link";
 
 export class AppleMailProvider extends Provider {
     private linkElement!: HTMLAnchorElement;
@@ -22,14 +22,14 @@ export class AppleMailProvider extends Provider {
         })
     }
 
-    dataChanged(data: ParsedMailLink | null): void | Promise<void> {
+    dataChanged(data: MailLinkFields | null): void | Promise<void> {
         if (!data) {
             this.uri = undefined;
             this.linkElement.removeAttribute("href");
             this.linkElement.textContent = "[No message ID]";
             return;
         }
-        this.uri = appleMailURI(data.mid);
+        this.uri = appleMailURI(data.messageId);
         this.linkElement.textContent = this.uri;
         this.linkElement.href = this.uri;
     }

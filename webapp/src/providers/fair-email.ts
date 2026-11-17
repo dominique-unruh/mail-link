@@ -1,13 +1,13 @@
 import html from './fair-email.html?raw';
 import {Provider} from "../provider.ts";
 import type {HTMLLike} from "../types.ts";
-import type {ParsedMailLink} from "mail-link";
+import type {MailLinkFields} from "mail-link";
 import {strippedSubject} from "../utils.ts";
 
 export class FairEmailProvider extends Provider {
     private linkElement!: HTMLAnchorElement;
     private autoActionCheckbox!: HTMLInputElement;
-    private data: ParsedMailLink | null = null;
+    private data: MailLinkFields | null = null;
     private link: string | undefined;
 
     constructor() {
@@ -24,7 +24,7 @@ export class FairEmailProvider extends Provider {
         })
     }
 
-    dataChanged(data: ParsedMailLink | null): void | Promise<void> {
+    dataChanged(data: MailLinkFields | null): void | Promise<void> {
         this.data = data;
         this.updateLink();
     }
@@ -37,8 +37,7 @@ export class FairEmailProvider extends Provider {
             return;
         }
 
-        const params = this.data.params;
-        const subject = params["subject"] ? strippedSubject(params["subject"])[0] : "";
+        const subject = this.data.subject ? strippedSubject(this.data.subject)[0] : "";
 
         // FairEmail can only search by subject here, so a message with no
         // subject gives us nothing to search for -- show a notice instead

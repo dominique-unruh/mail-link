@@ -59,4 +59,19 @@ describe('buildMailLink', () => {
     it('throws when the message id is missing', () => {
         expect(() => buildMailLink(base, {messageId: ''})).toThrow(/message id/);
     });
+
+    it('emits other fields after the known ones, and ignores parseErrors', () => {
+        expect(buildMailLink(base, {
+            'x-extra': 'a b', subject: 'Hi', parseErrors: ['ignored'], messageId: 'abc', other: '',
+        })).toBe(base + '#abc&subject=Hi&x-extra=a%20b');
+    });
+
+    it('throws on an invalid field name or a non-string value', () => {
+        // Neither can be written as a literal of type MailLinkFields, but can sneak in via other types.
+        const badName = {messageId: 'abc', 'bad_name': 'x'};
+        expect(() => buildMailLink(base, badName)).toThrow(/field name/);
+        const badValue: {messageId: string, subject: string} = {messageId: 'abc', subject: 'x'};
+        Object.assign(badValue, {count: 42});
+        expect(() => buildMailLink(base, badValue)).toThrow(/not a string/);
+    });
 });
