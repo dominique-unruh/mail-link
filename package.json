@@ -1,0 +1,7 @@
+{
+  "name": "mail-link-root",
+  "private": true,
+  "workspaces": [
+    "mail-link-lib"
+  ]
+}
