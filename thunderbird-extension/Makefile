@@ -4,7 +4,8 @@ SOURCES = $(sort $(wildcard dist/*) dist/manifest.json)
 
 xpi: $(XPI)
 
-$(SOURCES): $(wildcard src/*)
+# The build bundles the mail-link library, so its sources are prerequisites, too.
+$(SOURCES): $(wildcard src/*) $(wildcard ../mail-link-lib/src/*)
 	rm -rf dist/
 	npm run build
 
