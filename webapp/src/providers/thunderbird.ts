@@ -1,7 +1,7 @@
 import {Provider} from "../provider.ts";
 import html from "./thunderbird.html?raw";
 import {shellEscape} from "../utils.ts";
-import type {ParsedFragment} from "../types.ts";
+import type {ParsedMailLink} from "mail-link";
 
 export class ThunderbirdProvider extends Provider {
     private textarea!: HTMLElement;
@@ -14,7 +14,7 @@ export class ThunderbirdProvider extends Provider {
         this.textarea = document.getElementById('thunderbird-command') as HTMLElement;
     }
 
-    dataChanged(parsed: ParsedFragment | null): void | Promise<void> {
+    dataChanged(parsed: ParsedMailLink | null): void | Promise<void> {
         if (parsed == null) {
             this.textarea.textContent = 'thunderbird mid:your-message-id';
             return;

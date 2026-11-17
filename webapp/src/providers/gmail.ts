@@ -1,6 +1,7 @@
 import html from './gmail.html?raw';
 import {Provider} from "../provider.ts";
-import type {HTMLLike, ParsedFragment} from "../types.ts";
+import type {HTMLLike} from "../types.ts";
+import type {ParsedMailLink} from "mail-link";
 import {saveOptions} from "../options.ts";
 
 interface GmailProviderOptions {
@@ -11,7 +12,7 @@ export class GmailProvider extends Provider {
     private linkElement!: HTMLAnchorElement;
     private autoActionCheckbox!: HTMLInputElement;
     private accountNumber!: HTMLInputElement;
-    private data: ParsedFragment | null = null;
+    private data: ParsedMailLink | null = null;
     private link: string | undefined;
 
     constructor() {
@@ -37,7 +38,7 @@ export class GmailProvider extends Provider {
         this.accountNumber.value = (this.options().accountNumber || 0).toString()
     }
 
-    dataChanged(data: ParsedFragment | null): void | Promise<void> {
+    dataChanged(data: ParsedMailLink | null): void | Promise<void> {
         this.data = data;
         this.updateLink()
     }

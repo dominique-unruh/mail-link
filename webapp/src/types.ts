@@ -1,8 +1,3 @@
-export interface ParsedFragment {
-    mid: string;
-    params: Record<string, string>;
-}
-
 export type ProviderOptions = Record<string, any>;
 
 export interface OptionStorage {

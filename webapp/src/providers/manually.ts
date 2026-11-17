@@ -1,6 +1,6 @@
 import {Provider} from "../provider.ts";
 import {htmlEm, htmlLi, htmlP, htmlTag, strippedSubject, text} from "../utils.ts";
-import type {ParsedFragment} from "../types.ts";
+import type {ParsedMailLink} from "mail-link";
 
 export class ManualProvider extends Provider {
     static readonly uninitializedText =
@@ -13,7 +13,7 @@ export class ManualProvider extends Provider {
 
     protected init(): void | Promise<void> {}
 
-    dataChanged(parsed: ParsedFragment | null): void | Promise<void> {
+    dataChanged(parsed: ParsedMailLink | null): void | Promise<void> {
         const div = this.contentDiv();
         if (!parsed) {
             div.textContent = ManualProvider.uninitializedText;

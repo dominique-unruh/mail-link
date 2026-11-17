@@ -1,12 +1,13 @@
 import html from './fair-email.html?raw';
 import {Provider} from "../provider.ts";
-import type {HTMLLike, ParsedFragment} from "../types.ts";
+import type {HTMLLike} from "../types.ts";
+import type {ParsedMailLink} from "mail-link";
 import {strippedSubject} from "../utils.ts";
 
 export class FairEmailProvider extends Provider {
     private linkElement!: HTMLAnchorElement;
     private autoActionCheckbox!: HTMLInputElement;
-    private data: ParsedFragment | null = null;
+    private data: ParsedMailLink | null = null;
     private link: string | undefined;
 
     constructor() {
@@ -23,7 +24,7 @@ export class FairEmailProvider extends Provider {
         })
     }
 
-    dataChanged(data: ParsedFragment | null): void | Promise<void> {
+    dataChanged(data: ParsedMailLink | null): void | Promise<void> {
         this.data = data;
         this.updateLink();
     }

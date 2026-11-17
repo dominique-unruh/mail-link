@@ -4,3 +4,4 @@
 
 export {buildMailLink, type MailLinkFields} from './maillink.js';
 export {messageToFields} from './message.js';
+export {parseMailLink, type ParsedMailLink} from './parse.js';

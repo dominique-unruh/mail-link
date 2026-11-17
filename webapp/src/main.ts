@@ -4,7 +4,7 @@ import '@shoelace-style/shoelace/dist/components/copy-button/copy-button.js';
 import '@shoelace-style/shoelace/dist/components/details/details.js';
 import '@shoelace-style/shoelace/dist/components/checkbox/checkbox.js';
 import {getProvider, providers} from "./providers/providers.ts";
-import type {ParsedFragment} from "./types.ts";
+import {parseMailLink} from "mail-link";
 import {options, saveOptions} from "./options.ts";
 import {insertHtmlLike} from "./utils.ts";
 import type {Provider} from "./provider.ts";
@@ -12,42 +12,8 @@ import type {Provider} from "./provider.ts";
 const linkInputField = document.getElementById("link") as HTMLInputElement;
 const providerGroup = document.getElementById("how-to-open-group") as HTMLDivElement;
 
-function parseFragment(url: string): ParsedFragment | null {
-    const hash = new URL(url).hash;
-    if (!hash || hash.length <= 1)
-        return null;
-
-    // Remove the leading '#'
-    const fragment = hash.substring(1);
-
-    // Split by '&'
-    const parts = fragment.split('&');
-
-    if (parts.length === 0) {
-        return null;
-    }
-
-    // First part is the mid
-    const mid = decodeURIComponent(parts[0]);
-
-    // Rest are key=value pairs
-    const params: Record<string, string> = {};
-
-    for (let i = 1; i < parts.length; i++) {
-        const pair = parts[i].split('=');
-        if (pair.length === 2) {
-            const key = decodeURIComponent(pair[0].replace(/\+/g, ' '));
-            // noinspection UnnecessaryLocalVariableJS
-            const value = decodeURIComponent(pair[1].replace(/\+/g, ' '));
-            params[key] = value;
-        }
-    }
-
-    return { mid, params };
-}
-
 async function displayFragmentData(): Promise<void> {
-    const parsed = parseFragment(linkInputField.value);
+    const parsed = parseMailLink(linkInputField.value);
 
     for (const provider of providers)
         await provider.dataChanged(parsed);

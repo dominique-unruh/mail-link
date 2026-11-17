@@ -1,7 +1,8 @@
 import "./data-table.css";
 import {Provider} from "../provider.ts";
 import {htmlTag, insertHtmlLike, strippedSubject, text} from "../utils.ts";
-import type {HTMLLike, ParsedFragment} from "../types.ts";
+import type {HTMLLike} from "../types.ts";
+import type {ParsedMailLink} from "mail-link";
 import {SlCopyButton} from "@shoelace-style/shoelace";
 
 interface RowRenderer {
@@ -88,7 +89,7 @@ export class DataTableProvider extends Provider {
 
     protected init(): void | Promise<void> {}
 
-    dataChanged(parsed: ParsedFragment | null): void | Promise<void> {
+    dataChanged(parsed: ParsedMailLink | null): void | Promise<void> {
         if (!parsed) {
             this.contentDiv().innerHTML = '<p style="color: #999;">[Link is incomplete!]</p>';
             return;
