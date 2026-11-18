@@ -5,7 +5,8 @@ SOURCES = $(sort $(wildcard dist/*) dist/manifest.json)
 xpi: $(XPI)
 
 # The build bundles the mail-link library, so its sources are prerequisites, too.
-$(SOURCES): $(wildcard src/*) $(wildcard ../mail-link-lib/src/*)
+# `&:` (grouped targets, GNU make >= 4.3): one build produces all of $(SOURCES), so it runs only once.
+$(SOURCES) &: $(wildcard src/*) $(wildcard ../mail-link-lib/src/*)
 	rm -rf dist/
 	npm run build
 
